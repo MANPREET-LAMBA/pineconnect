@@ -11,4 +11,32 @@ function token_create(email,password){
     
 }
 
-module.exports = token_create;
+const check = (tokenx) => {
+  const token = tokenx;
+  console.log(token);
+  
+  console.log("in check auth");
+
+  if (!token) {
+    console.log("token not found");
+
+    return res.status(401).json({ success: false });
+  }
+
+  try {
+    // verify token
+    // console.log("in try");
+
+    const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY);
+    console.log(decoded);
+    return decoded
+
+    // res.json({ success: true, user: decoded });
+  } catch (err) {
+    console.log(err);
+
+    res.status(401).json({ success: false });
+  }
+}
+
+module.exports = {token_create,check};

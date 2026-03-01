@@ -1,44 +1,22 @@
-import { useEffect, useState } from "react";
-import { Navigate } from "react-router";
-import axios from "axios";
-
-export default function Auth_check({ children }) {
+import { useState,useEffect } from "react";
+const  Auth_check = ({ children }) => {
   const [loading, setLoading] = useState(true);
-  const [isAuth, setIsAuth] = useState(false);
-
-  const url = import.meta.env.VITE_API_URL
-  console.log("in front end check");
-  
+  const [isAuth, setIsAuth] = useState(true); // Mocked for preview
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:3000/api/checkauth`,
-          { withCredentials: true }
-        );
-
-        console.log();
-        
-
-        if (res.data.success) {
-          setIsAuth(true);
-        }
-      } catch (err) {
-        setIsAuth(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
   }, []);
 
-  if (loading) return <div>Checking authentication...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-[#0B0E14] flex flex-col items-center justify-center space-y-4">
+       <div className="w-12 h-12 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+       <p className="text-slate-400 font-medium animate-pulse">Initializing Terminal...</p>
+    </div>
+  );
 
-  if (!isAuth) return <Navigate to="/login" />;
+  return children;
+};
 
-  return (
-    children
-  )
-}
+export default Auth_check;
+

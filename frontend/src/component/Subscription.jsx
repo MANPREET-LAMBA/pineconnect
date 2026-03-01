@@ -1,83 +1,154 @@
-import React from "react";
-import { useEffect } from "react";
-import axios from "axios"
-import { useState } from "react";
-
-
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router";
 
 const Subscription = () => {
-  const [plans,datahandler] = useState([]);
+  const [plans, setPlans] = useState([]);
+  const navigate = useNavigate();
 
- useEffect(() => {
-  const fetchSubscription = async () => {
-    const result = await axios.get("http://localhost:3000/subscription");
-    console.log(result.data);
-    
-     datahandler(result.data)
-   
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      const result = await axios.get(
+        "http://localhost:3000/payment/subscription",
+      );
+      setPlans(result.data);
+      console.log(result.data);
+    };
+    fetchSubscription();
+  }, []);
+
+  const handlePayment = async (planId) => {
+    const hasToken = document.cookie.includes("token");
+    console.log(document.cookie.includes("token"));
+    console.log(hasToken);
+
+    // 🔥 If no cookie → go to login immediately
+    if (!hasToken) {
+      navigate("/login");
+      alert("login first");
+      return;
+    }
+
+    try {
+      const auth = await axios.get("http://localhost:3000/api/checkauth", {
+        withCredentials: true,
+      });
+
+      console.log(auth);
+
+      const { data } = await axios.post(
+        "http://localhost:3000/payment/create-order",
+        { planId},
+        { withCredentials: true },
+      );
+
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.orderId,
+        method: {
+          card: true,
+          netbanking: true,
+          wallet: true,
+          upi: true,
+          
+        },
+        checkout_config_id: "config_SLYcPTj7E80P1U",
+        handler: async function (response) {
+          await axios.post(
+            "http://localhost:3000/payment/verify-payment",
+            {
+              ...response,
+              planId,
+              paymentEntryId: data.paymentEntryId,
+            },
+            { withCredentials: true },
+          );
+
+          alert("Payment Successful");
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      alert("payment error");
+    }
   };
 
-  fetchSubscription();
-}, []);
-
- console.log(plans);
-
   return (
-    <div className="min-h-screen text-purple-400 text-white py-24 px-6">
+    <section
+      id="pricing"
+      className="relative min-h-screen bg-[#0B0618] text-white py-28 px-6 overflow-hidden"
+    >
+      {/* 🔥 Animated Background Blobs */}
+      <div className="absolute w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[150px] animate-pulse top-[-200px] left-[-150px]"></div>
+      <div className="absolute w-[400px] h-[400px] bg-emerald-500/20 rounded-full blur-[150px] animate-pulse bottom-[-150px] right-[-150px]"></div>
 
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-purple-400">
-          Choose Your Plan
-        </h1>
-        <p className="mt-4 text-gray-400">
-          Powerful tools to automate and scale your trading strategies
-        </p>
-      </div>
+      {/* Subtle Grid Overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:40px_40px]"></div>
 
-      {/* Cards */}
-      <div className="grid md:grid-cols-3 gap-8 mt-16 max-w-6xl mx-auto">
-        {plans.map((plan, index) => (
-          <div
-            key={index}
-            className={`relative rounded-2xl p-8 border 
-            ${plan.highlight
-                ? "border-purple-500 shadow-[0_0_40px_#7f00ff]"
-                : "border-purple-900"}
-            bg-white/5 backdrop-blur-lg transition hover:-translate-y-2`}
-          >
-            {plan.highlight && (
-              <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-purple-600 text-xs px-4 py-1 rounded-full">
-                MOST POPULAR
-              </span>
-            )}
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto">
+          <h1 className="text-5xl md:text-6xl font-extrabold">
+            Flexible{" "}
+            <span className="bg-gradient-to-r from-emerald-400 to-purple-400 bg-clip-text text-transparent">
+              Pricing Plans
+            </span>
+          </h1>
 
-            <h3 className="text-2xl font-semibold text-purple-300">
-              {plan.name}
-            </h3>
+          <p className="mt-6 text-gray-400 text-lg">
+            Powerful infrastructure to automate and scale your trading
+            strategies with confidence.
+          </p>
+        </div>
 
-            <p className="text-3xl font-bold mt-4">{plan.price}</p>
-
-            <ul className="mt-6 space-y-3 text-gray-300">
-              {plan.features.map((feature, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <span className="text-purple-400">✔</span>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-
-            <button
-              className="mt-8 w-full py-3 rounded-lg font-semibold
-              bg-gradient-to-r from-purple-600 to-fuchsia-600
-              hover:opacity-90 transition"
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-3 gap-10 mt-20 max-w-6xl mx-auto">
+          {plans.map((plan, index) => (
+            <div
+              key={index}
+              className={`relative group rounded-2xl p-10 border backdrop-blur-xl transition-all duration-500 hover:-translate-y-3
+              ${
+                plan.highlight
+                  ? "border-emerald-400 shadow-[0_0_60px_rgba(16,185,129,0.3)] bg-white/10"
+                  : "border-white/10 bg-white/5 hover:border-purple-500/40"
+              }`}
             >
-              Get Started
-            </button>
-          </div>
-        ))}
+              {plan.highlight && (
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-400 to-purple-500 text-black text-xs font-semibold px-5 py-1 rounded-full shadow-lg">
+                  MOST POPULAR
+                </span>
+              )}
+
+              <h3 className="text-2xl font-semibold text-white">{plan.name}</h3>
+
+              <p className="text-4xl font-bold mt-6">{plan.price}</p>
+
+              <ul className="mt-8 space-y-4 text-gray-300">
+                {plan.features.map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <span className="text-emerald-400">✔</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                className="mt-10 w-full py-3 rounded-lg font-semibold  bg-white/10 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-emerald-500 hover:text-white transition-all duration-500"
+                onClick={() => {
+                  handlePayment(plan._id);
+                }}
+              >
+                Get Started
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

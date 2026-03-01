@@ -1,101 +1,66 @@
-import './landing.css'
-import bg from "../assets/object1.svg"
-import element from "../assets/element.png"
+import "./landing.css";
 
 export default function Horo() {
   return (
-    <div className="  relative w-full h-screen flex  items-center flex-col px-14 ">
-      <div className='w-full absolute -top-28 h-full opacity-50 xl:opacity-35 -z-10 flex justify-center  '> <img className='w-[70%] ' src={bg} /></div>
-      {/* <div className='w-full absolute -top-16 h-full  -z-20 flex justify-center items-center '> <img className='w-[100%] h-[100%]' src={element} /></div> */}
+    <div
+      className="relative w-full min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden text-white bg-black
+                 pt-24 sm:pt-28 lg:pt-32" // Added padding to prevent navbar overlap
+    >
+      {/* Purple Glow */}
+      <div className="absolute w-[600px] sm:w-[700px] h-[600px] sm:h-[700px] bg-purple-700/30 blur-[140px] rounded-full -top-40 -left-36 sm:-top-52 sm:-left-36"></div>
 
-      <div className="linear-gradient(135deg,#12081F 0%,#2A0E4F 45%,#5B21B6 100%)">
+      {/* Indigo Glow */}
+      <div className="absolute w-[500px] sm:w-[600px] h-[500px] sm:h-[600px] bg-indigo-600/20 blur-[140px] rounded-full -bottom-48 -right-36 sm:-bottom-52 sm:-right-36"></div>
 
-      </div>
-      <div className="w-[80%] relative text-3xl flex flex-col mt-44 items-center z-10  ">
-        <h1 className="text-6xl glow h-fit pb-5  font-extrabold flex text-center bg-gradient-to-r from-white via-purple-500 to-violet-600 bg-clip-text ">
-          The Complete Trading Toolkit:
-          <br /> Bridge, Copy Trading & Account Manager
+      {/* Emerald Accent Glow */}
+      <div className="absolute w-[400px] sm:w-[500px] h-[400px] sm:h-[500px] bg-emerald-500/20 blur-[120px] rounded-full top-[40%] left-[25%] sm:top-[40%] sm:left-[30%]"></div>
+
+      {/* Hero Content */}
+      <div className="relative z-10 text-center max-w-5xl w-full">
+        {/* Small Badge */}
+        <div className="mb-6 inline-block px-3 sm:px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 text-xs sm:text-sm font-semibold">
+          Ultra Low Latency Execution
+        </div>
+
+        <h1 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-snug sm:leading-tight bg-gradient-to-r from-white via-purple-400 to-indigo-500 bg-clip-text text-transparent">
+          The Complete Trading Toolkit
         </h1>
-         <h1 className="  text-6xl absolute h-fit pb-5 text-transparent  font-extrabold flex text-center bg-gradient-to-r from-white via-purple-500 to-violet-500 bg-clip-text ">
-          The Complete Trading Toolkit:
-          <br /> Bridge, Copy Trading & Account Manager
-        </h1>
-        <h2 className="text-2xl text-center pt-10 text-white font-semibold font-sans">
-          An ultra-low latency TradingView bridge with integrated copy trading,{" "}
-          <br />
-          advanced risk controls, and professional account management.
-        </h2>
+
+        <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-gray-300 font-medium">
+          Bridge, Copy Trading &{" "}
+          <span className="text-emerald-400">Professional Account Manager</span>
+        </p>
+
+        <p className="mt-2 sm:mt-4 text-sm sm:text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
+          Ultra-low latency TradingView bridge with integrated copy trading, advanced risk controls and institutional-grade execution.
+        </p>
+
+        {/* Buttons */}
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
+          <button className="px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-500/10">
+            Get Started
+          </button>
+          <button className="px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-semibold text-lg border border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 transition-all duration-300">
+            Explore Features
+          </button>
+        </div>
       </div>
-      <div className="pt-6 text-blue-950 text-shadow-amber-50 z-10">
-        <button className="w-fit p-3 font-bold rounded-xl bg-gradient-to-r from-white/85 to-purple-400 text-lg">Explore more and get freedom</button>
-      </div>
-{/* highlight points */}
-      <div className="w-full flex justify-evenly font-bold pt-44">
-        <div className="flex gap-2  p-3 rounded-xl bg-white/35">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="size-6 "
+
+      {/* Feature Highlights */}
+      <div className="relative z-10 mt-12 sm:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full max-w-6xl px-2 sm:px-0">
+        {[
+          "Trusted by Prop Traders",
+          "No Delays. No Missed Entries",
+          "Built for Professional Trading",
+          "1s Average Execution Time",
+        ].map((text, index) => (
+          <div
+            key={index}
+            className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-5 text-center hover:border-emerald-500 hover:bg-emerald-500/5 transition-all duration-300"
           >
-            <path
-              fill-rule="evenodd"
-              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-              clip-rule="evenodd"
-            />
-          </svg>
-
-          <h5>Trusted by prop trader </h5>
-        </div>
-
-        <div className="flex gap-2  p-3 rounded-xl bg-white/35">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="size-6"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-              clip-rule="evenodd"
-            />
-          </svg>
-
-          <h5>No delays. No missed entries</h5>
-        </div>
-
-        <div className="flex gap-2  p-3 rounded-xl bg-white/35">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="size-6"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          <h5>Built for professional trading</h5>
-        </div>
-
-        <div className="flex gap-2  p-3 rounded-xl bg-white/35">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="size-6"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          <h5>1s average execution time</h5>
-        </div>
+            <p className="font-semibold text-gray-200 text-sm sm:text-base">{text}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

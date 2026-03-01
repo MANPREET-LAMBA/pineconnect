@@ -1,50 +1,133 @@
 import { useState, useEffect } from "react";
 import logo from "../assets/pine.svg";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
+import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 
 export default function Nav() {
-  const [scrolled, setScrolled] = useState(false)
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  const themehandler = ()=>{
-    const currenttheme = document.documentElement.classList.contains("dark")?"light":"dark";
-    document.documentElement.classList.toggle("dark");
-    localStorage.setItem("theme", currenttheme)
-  }
+  const navItems = [
+    { name: "Home", path: "/" },
+    { name: "Docs", path: "/docs" },
+    { name: "Pricing", path: "/#pricing" },
+    { name: "DashBoard", path: "/Portal" },
+    { name: "Alogs", path: "https://pineconnect.vercel.app/" },
+  ];
 
   return (
-    <div className="w-full text-white  px-14 flex justify-center  sticky top-0 pt-3 z-50   "  >
-      <div className={` h-20  flex flex-row justify-between items-center px-3  ${scrolled ? "w-[70%] bg flex justify-between transition-all duration-500 bg-white/35 dark:bg-black/35 dark:text-white backdrop-blur-xl  shadow-lg rounded-2xl ":" transition-all dark:text-black duration-500 w-full"} `}>
-        <div>
-          <img className="w-14" src={logo} />
-        </div>
-        <div className="w-fit px-3  ">
-          <ul className="flex gap-5 text-2xl">
-            <Link to="/"><li>Home</li></Link>
-            <li>About us</li>
-            <li>Document</li>
-            <Link to="/pricing"><li>Pricing</li></Link>
-           
-          </ul>
-        </div>
-        <div className="flex gap-3">
-          
-          <Link to="/login"> <button  className={` text-4xl font-bold bg-white rounded-xl`}>
-            login
-          </button> </Link>
-          <button className={` text-4xl font-bold bg-white rounded-xl`}>
-            contact
+    <nav className="fixed w-full z-50 top-0 px-4 sm:px-6 lg:px-8 py-3 flex justify-center">
+      <div
+        className={`flex items-center justify-between w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-3 rounded-2xl transition-all duration-500
+          ${scrolled
+            ? "bg-[#0B0618]/90 backdrop-blur-xl border border-white/10 shadow-xl"
+            : "bg-transparent"
+          }`}
+      >
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3 group">
+          <img
+            src={logo}
+            alt="PineConnect logo"
+            className="w-10 sm:w-11 transition-transform duration-300 group-hover:scale-110"
+          />
+          <span className="text-xl sm:text-2xl font-bold tracking-wide">
+            Pine<span className="text-emerald-400">Connect</span>
+          </span>
+        </Link>
+
+        {/* Desktop Menu */}
+        <ul className="hidden md:flex items-center gap-8 lg:gap-10 text-lg font-medium">
+          {navItems.map((item, index) => (
+            <li key={index} className="relative group">
+              <a
+                href={item.path}
+                className="text-gray-300 hover:text-white transition-colors duration-300"
+              >
+                {item.name}
+              </a>
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 to-emerald-400 transition-all duration-300 group-hover:w-full"></span>
+            </li>
+          ))}
+        </ul>
+
+        {/* Buttons & Hamburger */}
+        <div className="flex items-center gap-4">
+          {/* Desktop Buttons */}
+          <div className="hidden md:flex gap-4">
+            <Link to="/login">
+              <button className="px-6 py-2 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-emerald-400 transition-all duration-300">
+                Login
+              </button>
+            </Link>
+            <button className="px-6 py-2 rounded-lg font-semibold bg-gradient-to-r from-purple-600/45 to-emerald-500/45 hover:scale-105 transition-all duration-300 shadow-lg shadow-purple-900/40">
+              Contact
+            </button>
+          </div>
+
+          {/* Hamburger for Mobile */}
+          <button
+            className="md:hidden text-gray-300 text-2xl"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <HiOutlineX /> : <HiOutlineMenu />}
           </button>
         </div>
       </div>
-    </div>
+
+      {/* Mobile Drawer */}
+      <div
+        className={`md:hidden fixed top-0 right-0 h-screen w-64 bg-[#0B0618]/95 backdrop-blur-xl border-l border-white/10 transform transition-transform duration-300 shadow-xl z-40
+          ${mobileOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
+        <div className="flex flex-col h-full justify-between p-6">
+          <ul className="flex flex-col gap-6 text-lg font-medium">
+            {navItems.map((item, index) => (
+              <li key={index}>
+                <a
+                  href={item.path}
+                  className="text-gray-300 hover:text-white transition-colors duration-300"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {item.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-col gap-4 mt-6">
+            <Link to="/login">
+              <button
+                className="w-full px-6 py-2 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-emerald-400 transition-all duration-300"
+                onClick={() => setMobileOpen(false)}
+              >
+                Login
+              </button>
+            </Link>
+            <button
+              className="w-full px-6 py-2 rounded-lg font-semibold bg-gradient-to-r from-purple-600/45 to-emerald-500/45 hover:scale-105 transition-all duration-300 shadow-lg shadow-purple-900/40"
+              onClick={() => setMobileOpen(false)}
+            >
+              Contact
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay when menu open */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-30"
+          onClick={() => setMobileOpen(false)}
+        ></div>
+      )}
+    </nav>
   );
 }

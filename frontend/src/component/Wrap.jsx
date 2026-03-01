@@ -3,6 +3,7 @@ import Hero from "./Hero"
 import Second from "./Second";
 import Working from "./Working";
 import Feature from "./Feature";
+import Subscription from "./Subscription";
 
 export default function Wrap(){
     return(
@@ -12,6 +13,7 @@ export default function Wrap(){
             <Second/>
             <Working/>
             <Feature/>
+            <Subscription/>
         </div>
     )
 }

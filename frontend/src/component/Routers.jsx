@@ -40,12 +40,12 @@ const router = createBrowserRouter([
         <Portal_layout/>
         </Auth_check>
     ),
-    children:[
-        {
-            path :"/portal",
-            element: <Portal_conn/>
-        },
-    ]
+    // children:[
+    //     {
+    //         path :"/portal",
+    //         element: <Portal_conn/>
+    //     },
+    // ]
   }
 ]);
 

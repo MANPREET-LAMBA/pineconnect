@@ -4,7 +4,6 @@ import Layout from "./Layout";
 import Wrap from "./Wrap";
 import Login from "./Login";
 import Sign from "./Sign";
-import Portal_conn from "../portal/portal_conn";
 import Portal_layout from "../portal/portal_layout";
 import Auth_check from "../portal/auth_check";
 import Subscription from "./Subscription";

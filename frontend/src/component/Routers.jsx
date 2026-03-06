@@ -4,8 +4,8 @@ import Layout from "./Layout";
 import Wrap from "./Wrap";
 import Login from "./Login";
 import Sign from "./Sign";
-import Portal_layout from "../portal/portal_layout";
-import Auth_check from "../portal/auth_check";
+import Portal_layout from "../portal/Portal_layout";
+import Auth_check from "../portal/Auth_check";
 import Subscription from "./Subscription";
 
 const router = createBrowserRouter([

@@ -91,11 +91,11 @@ router.post("/login", async (req, res) => {
     const token = token_create(email, password);
 
     res.cookie("token", token, {
-      
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
 
     res.status(200).json({
       message: "Login successful",

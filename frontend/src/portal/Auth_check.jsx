@@ -1,22 +1,39 @@
-import { useState,useEffect } from "react";
-const  Auth_check = ({ children }) => {
-  const [loading, setLoading] = useState(true);
-  const [isAuth, setIsAuth] = useState(true); // Mocked for preview
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Navigate } from "react-router-dom";
+
+const Auth_check = ({ children }) => {
+
+  const [auth, setAuth] = useState(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
+
+    const checkAuth = async () => {
+      try {
+        await axios.get(
+          "https://bridge-etn0.onrender.com/api/checkauth",
+          { withCredentials: true }
+        );
+
+        setAuth(true);
+
+      } catch (error) {
+
+        setAuth(false);
+
+      }
+    };
+
+    checkAuth();
+
   }, []);
 
-  if (loading) return (
-    <div className="min-h-screen bg-[#0B0E14] flex flex-col items-center justify-center space-y-4">
-       <div className="w-12 h-12 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
-       <p className="text-slate-400 font-medium animate-pulse">Initializing Terminal...</p>
-    </div>
-  );
+  if (auth === null) {
+    return <div>Loading...</div>;
+  }
 
-  return children;
+  return auth ? children : <Navigate to="/login" />;
+
 };
 
 export default Auth_check;
-

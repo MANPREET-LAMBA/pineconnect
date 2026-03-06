@@ -13,7 +13,7 @@ const navigate = useNavigate();
   const response = async ()=>{
    try {
      const res =  await axios.get(
-      "http://localhost:3000/api/checkauth",
+      "https://bridge-etn0.onrender.com/api/checkauth",
       { withCredentials: true } ,
       {
         headers: {
@@ -43,7 +43,7 @@ const handleSubmit = async (e) => {
 
   try {
     const response = await axios.post(
-      "http://localhost:3000/api/login",
+      "https://bridge-etn0.onrender.com/api/login",
       { email, password },
       { withCredentials: true } ,
       {

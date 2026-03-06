@@ -15,7 +15,7 @@ import {
   LogOut,
   Cpu
 } from 'lucide-react';
-import Portal_conn from './portal_conn';
+import Portal_conn from '../portal/Portal_conn';
 
 export default function Portal_layout() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);

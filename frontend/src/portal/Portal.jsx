@@ -1,13 +1,13 @@
 import Auth_check from "./Auth_check";
-import Portal_layout from "./Portal_layout";
-import Portal_conn from "./Portal_conn";
+import Portallayout from "./Portal_layout";
+import Portalconn from "./Portal_conn";
 
 export default function Portal() {
   return (
     <Auth_check>
-      <Portal_layout>
-        <Portal_conn />
-      </Portal_layout>
+      <Portallayout>
+        <Portalconn />
+      </Portallayout>
     </Auth_check>
   );
 }

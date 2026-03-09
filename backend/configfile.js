@@ -1,5 +1,6 @@
 const appx =  require("./websitehttp/server")
 const http = require("http")
+const cors = require('cors')
 
 const httpservercall = ()=>{
 

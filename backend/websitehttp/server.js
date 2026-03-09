@@ -9,7 +9,7 @@ const paymentroute = require('./route/paymentRoute');
 
 const app = express();
 app.use(cors({
- // frontend
+  origin: "https://bridge-etn0.onrender.com", // frontend
   credentials: true
 }));
 app.use(express.json());

@@ -17,8 +17,23 @@ import {
   Cpu
 } from 'lucide-react';
 
+
 import LicenseRow from "./LicenseRow"
+import axios from 'axios';
 const Portal_conn = () => {
+const [data,dataset] = useState([]);
+  useEffect( async()=>{
+    try {
+      console.log("hello");
+      
+      const res = await axios.get("http://localhost:3000/api/getLicense",{ withCredentials: true } );
+      dataset(res);
+      console.log("hello");
+      
+    } catch (error) {
+      console.log(error);
+    }
+  },[])
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center justify-between">

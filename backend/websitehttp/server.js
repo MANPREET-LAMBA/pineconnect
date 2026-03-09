@@ -3,13 +3,13 @@ const express = require('express');
 const connect = require('./connect/db_connect')
 const dotenv = require('dotenv');
 const router = require("./auth/authx")
-var cors = require('cors')
+const cors = require('cors')
 const cookieParser = require("cookie-parser");
 const paymentroute = require('./route/paymentRoute');
 
 const app = express();
 app.use(cors({
-  origin: "https://bridege-frontend.vercel.app/", // frontend
+  origin: "https://bridege-frontend.vercel.app", // frontend
   credentials: true
 }));
 app.use(express.json());

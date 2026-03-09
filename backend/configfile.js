@@ -27,7 +27,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "https://bridege-frontend.vercel.app/", // frontend
+  origin: "https://bridege-frontend.vercel.app", // frontend
   credentials: true
 }));
 

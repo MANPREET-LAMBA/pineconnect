@@ -9,7 +9,7 @@ const paymentroute = require('./route/paymentRoute');
 
 const app = express();
 app.use(cors({
-  origin: "*", // frontend
+  origin: "https://pineconnector.vercel.app/", // frontend
   credentials: true
 }));
 app.use(express.json());

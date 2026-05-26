@@ -9,7 +9,7 @@ const paymentroute = require('./route/paymentRoute');
 
 const app = express();
 app.use(cors({
-  origin: "https://bridege-frontend.vercel.app", // frontend
+  origin: "*", // frontend
   credentials: true
 }));
 app.use(express.json());

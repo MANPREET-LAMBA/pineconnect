@@ -29,7 +29,7 @@ const navigate = useNavigate();
 
     try {
       const res = await axios.post(
-        `http://localhost:3000/api/newuser`,
+        `https://bridge-etn0.onrender.com/api/newuser`,
         formData,
         { withCredentials: true }
       );

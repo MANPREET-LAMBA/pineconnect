@@ -33,9 +33,9 @@ const navigate = useNavigate();
         formData,
         { withCredentials: true }
       );
-      console.log(res);
+      // console.log(res);
 
-      console.log("done");
+      // console.log("done");
 
       setMessage("✅ Account created successfully");
       navigate("/portal")

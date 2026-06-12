@@ -25,7 +25,7 @@ router.post("/newuser", async (req, res) => {
     password: pass,
   });
 
-  await sendmail();
+  // await sendmail();
   const token = token_create(email, password);
   console.log("tokens " + token);
 

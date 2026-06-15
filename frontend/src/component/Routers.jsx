@@ -8,6 +8,9 @@ import Portal_layout from "../portal/Portal_layout";
 import Auth_check from "../portal/Auth_check";
 import Subscription from "./Subscription";
 
+import Docs from "./docs";
+
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -29,6 +32,10 @@ const router = createBrowserRouter([
             path :"/pricing",
             element: <Subscription/>
         },
+        {
+            path: "/document",
+            element: <Docs/>
+        }
         
     ]
   },

@@ -13,6 +13,14 @@ const saltRounds = 10;
 const dotenv = require("dotenv");
 dotenv.config();
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
+
 router.use(express.json());
 router.post("/newuser", async (req, res) => {
   const { fullName, email, country, phone, password } = req.body;
@@ -29,12 +37,7 @@ router.post("/newuser", async (req, res) => {
   const token = token_create(email, password);
   console.log("tokens " + token);
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: false, // true in production (HTTPS)
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
+  res.cookie("token", token, cookieOptions);
 
   // ✅ SEND RESPONSE
   res.status(201).json({
@@ -43,7 +46,9 @@ router.post("/newuser", async (req, res) => {
 });
 
 router.get("/checkauth", (req, res) => {
+  console.log(req.cookies);
   const token = req.cookies.token;
+  console.log(token);
   console.log("in check auth");
 
   if (!token) {
@@ -65,6 +70,26 @@ router.get("/checkauth", (req, res) => {
 
     res.status(401).json({ success: false });
   }
+});
+
+router.post("/logout", (req, res) => {
+  console.log("in logout", req.cookies);
+  res.clearCookie("token", {
+    httpOnly: cookieOptions.httpOnly,
+    secure: cookieOptions.secure,
+    sameSite: cookieOptions.sameSite,
+    path: cookieOptions.path,
+    expires: new Date(0),
+    maxAge: 0,
+  });
+  res.cookie("token", "", {
+    httpOnly: cookieOptions.httpOnly,
+    secure: cookieOptions.secure,
+    sameSite: cookieOptions.sameSite,
+    path: cookieOptions.path,
+    maxAge: 0,
+  });
+  res.status(200).json({ message: "Logged out" });
 });
 
 router.post("/login", async (req, res) => {
@@ -91,12 +116,7 @@ router.post("/login", async (req, res) => {
     // 3️⃣ Create token
     const token = token_create(email, password);
 
-    res.cookie("token", token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "none",
-  maxAge: 7 * 24 * 60 * 60 * 1000
-});
+    res.cookie("token", token, cookieOptions);
 
     res.status(200).json({
       message: "Login successful",

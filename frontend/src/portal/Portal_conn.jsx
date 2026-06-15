@@ -22,18 +22,22 @@ import LicenseRow from "./LicenseRow"
 import axios from 'axios';
 const Portal_conn = () => {
 const [data,dataset] = useState([]);
-  useEffect( async()=>{
-    try {
-      console.log("hello");
-      
-      const res = await axios.get("http://localhost:3000/api/getLicense",{ withCredentials: true } );
-      dataset(res);
-      console.log("hello");
-      
-    } catch (error) {
-      console.log(error);
-    }
-  },[])
+console.log("data");
+  useEffect(() => {
+    const dataXX = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/getLicense", {
+          withCredentials: true,
+        });
+        dataset(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    dataXX();
+  }, []);
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center justify-between">
@@ -56,6 +60,12 @@ const [data,dataset] = useState([]);
         </div>
 
         <div className="p-2 space-y-2 overflow-hidden">
+
+          {/* {
+            data.map((iteam)=>{
+              <LicenseRow licenseKey="LIC-8X92-KD92-PL01" initialUser="Sohaib" initialType="Algo" status="Active" />
+            })
+          } */}
           <LicenseRow licenseKey="LIC-8X92-KD92-PL01" initialUser="Sohaib" initialType="Algo" status="Active" />
           <LicenseRow licenseKey="LIC-2A44-M292-XQ88" initialUser="Sohaib" initialType="Manual" status="Active" />
           <LicenseRow licenseKey="LIC-9P12-BB02-KL09" initialUser="Sohaib" initialType="Algo" status="Active" />

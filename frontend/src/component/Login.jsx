@@ -53,7 +53,7 @@ const handleSubmit = async (e) => {
       }
     );
 
-    navigate("/")
+    navigate("/portal")
 
     console.log(response.data);
 

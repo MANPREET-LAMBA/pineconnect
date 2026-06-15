@@ -11,7 +11,7 @@ const Auth_check = ({ children }) => {
     const checkAuth = async () => {
       try {
         await axios.get(
-          "https://bridge-etn0.onrender.com/api/checkauth",
+          "http://localhost:3000/api/checkauth",
           { withCredentials: true }
         );
 

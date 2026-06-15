@@ -38,10 +38,10 @@ const Subscription = () => {
 
       const { data } = await axios.post(
         "http://localhost:3000/payment/create-order",
-        { planId},
+        { planId },
         { withCredentials: true },
       );
-
+      console.log("payment process ")
       const options = {
         key: data.key,
         amount: data.amount,
@@ -51,11 +51,12 @@ const Subscription = () => {
           card: true,
           netbanking: true,
           wallet: true,
-          upi: true,
-          
+          upi: true, 
+
         },
         checkout_config_id: "config_SLYcPTj7E80P1U",
         handler: async function (response) {
+          console.log("calling verfication")
           await axios.post(
             "http://localhost:3000/payment/verify-payment",
             {
@@ -70,7 +71,10 @@ const Subscription = () => {
         },
       };
 
+      console.log("Razorpay SDK", window.Razorpay);
+      console.log("create-order response", data);
       const rzp = new window.Razorpay(options);
+      console.log("rzp created", rzp);
       rzp.open();
     } catch (error) {
       alert("payment error");
@@ -111,11 +115,10 @@ const Subscription = () => {
             <div
               key={index}
               className={`relative group rounded-2xl p-10 border backdrop-blur-xl transition-all duration-500 hover:-translate-y-3
-              ${
-                plan.highlight
+              ${plan.highlight
                   ? "border-emerald-400 shadow-[0_0_60px_rgba(16,185,129,0.3)] bg-white/10"
                   : "border-white/10 bg-white/5 hover:border-purple-500/40"
-              }`}
+                }`}
             >
               {plan.highlight && (
                 <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-400 to-purple-500 text-black text-xs font-semibold px-5 py-1 rounded-full shadow-lg">

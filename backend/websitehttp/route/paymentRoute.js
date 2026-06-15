@@ -24,7 +24,7 @@ paymentroute.get("/subscription", async (req, res) => {
   }
 });
 
-paymentroute.post("/create-order", async (req, res) => {
+paymentroute.post("/createOrder", async (req, res) => {
   try {
     const { planId } = req.body;
     const token = req.cookies.token;
@@ -92,34 +92,48 @@ paymentroute.post("/create-order", async (req, res) => {
   }
 });
 
-paymentroute.post("/verify-payment", async (req, res) => {
-  console.log("IN VAR");
-  
+paymentroute.post("/verifyPayment", async (req, res) => {
 
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-    paymentEntryId,
-  } = req.body;
+  console.log("in verfy bk")
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      paymentEntryId,
+    } = req.body;
 
-  console.log(req.body);
-  
+    console.log("VERIFY BODY:", req.body);
 
-  const body = razorpay_order_id + "|" + razorpay_payment_id;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !paymentEntryId) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing payment verification fields",
+      });
+    }
 
-  const expectedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-    .update(body.toString())
-    .digest("hex");
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
 
-  if (expectedSignature === razorpay_signature) {
-    // ✅ Payment is valid
-console.log(paymentEntryId);
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Signature",
+      });
+    }
 
     const payment = await PaymentEntry.findById(paymentEntryId);
-  
-    
+
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message: "Payment entry not found",
+      });
+    }
 
     payment.paymentStatus = "paid";
     payment.isActive = true;
@@ -131,20 +145,29 @@ console.log(paymentEntryId);
       paymentId: razorpay_payment_id,
       signature: razorpay_signature,
     };
-  console.log(payment);
-  console.log("payment done");
-  
+
     await payment.save();
 
-    createOrUpdateLicenses(payment.user,payment.planName,razorpay_order_id,razorpay_payment_id);
-    // create license key
+    await createOrUpdateLicenses(
+      payment.user,
+      payment.planName,
+      razorpay_order_id,
+      razorpay_payment_id
+    );
 
     return res.json({ success: true });
-  } else {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid Signature" });
+  } catch (error) {
+    console.error("VERIFY PAYMENT ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Payment verification failed",
+      error: error.message,
+    });
   }
 });
 
+
+paymentroute.get("/test", (req, res) => {
+  res.send("payment route is live");
+})
 module.exports = paymentroute;

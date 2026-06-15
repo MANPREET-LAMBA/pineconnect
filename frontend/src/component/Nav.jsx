@@ -15,9 +15,9 @@ export default function Nav() {
 
   const navItems = [
     { name: "Home", path: "/" },
-    { name: "Docs", path: "/docs" },
-    { name: "Pricing", path: "/#pricing" },
-    { name: "DashBoard", path: "/Portal" },
+    { name: "Docs", path: "/portal" },
+    { name: "Pricinr54tg", path: "/#pricing" },
+    { name: "DashBoard", path: "/portal" },
     { name: "Alogs", path: "https://pineconnect.vercel.app/" },
   ];
 

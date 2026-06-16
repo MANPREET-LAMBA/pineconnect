@@ -10,9 +10,7 @@ const paymentroute = require('./route/paymentRoute');
 const app = express();
 app.use(cors({
   origin: [
-    "https://pineconnector.vercel.app",
-    "https://pineconnect-delta.vercel.app",
-    "http://localhost:5173"
+   "https://pineconnect-bxwv.vercel.app"
   ],
   credentials: true
 }));

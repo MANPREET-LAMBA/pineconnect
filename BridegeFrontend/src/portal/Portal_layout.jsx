@@ -31,7 +31,7 @@ export default function Portal_layout() {
 const logouthandler = async () => {
   try {
     const response = await axios.post(
-      'http://localhost:3000/api/logout',
+      'https://pineconnect.onrender.com/api/logout',
       {},
       {
         withCredentials: true,
@@ -125,7 +125,7 @@ const logouthandler = async () => {
                     S
                   </div>
                   <div className="flex-1 overflow-hidden">
-                    <p className="text-sm font-bold text-white truncate">Sohaib_User</p>
+                    <p className="text-sm font-bold text-white truncate">User</p>
                     <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Active Plan</p>
                   </div>
                 </div>

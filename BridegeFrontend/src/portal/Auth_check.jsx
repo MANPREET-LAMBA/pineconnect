@@ -11,7 +11,7 @@ const Auth_check = ({ children }) => {
     const checkAuth = async () => {
       try {
         await axios.get(
-          "http://localhost:3000/api/checkauth",
+          "https://pineconnect.onrender.com/api/checkauth",
           { withCredentials: true }
         );
 

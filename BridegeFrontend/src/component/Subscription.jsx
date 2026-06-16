@@ -70,7 +70,7 @@ const Subscription = () => {
   useEffect(() => {
     const fetchSubscription = async () => {
       const result = await axios.get(
-        "https://localhost:3000/payment/subscription",
+        "https://pineconnect.onrender.com/payment/subscription",
       );
       setPlans(result.data);
       console.log(result.data);
@@ -79,26 +79,26 @@ const Subscription = () => {
   }, []);
 
   const handlePayment = async (planId) => {
-    // const hasToken = document.cookie;
-    // console.log("this is token" + document.cookie.includes("token"));
-    // console.log("token " +hasToken);
+    const hasToken = document.cookie;
+    console.log("this is token" + document.cookie.includes("token"));
+    console.log("token " +hasToken);
 
-    // // 🔥 If no cookie → go to login immediately
-    // if (!hasToken) {
-    //   navigate("/login");
-    //   alert("login first");
-    //   return;
-    // }
+    // 🔥 If no cookie → go to login immediately
+    if (!hasToken) {
+      navigate("/login");
+      alert("login first");
+      return;
+    }
 
     try {
-      const auth = await axios.get("http://localhost:3000/api/checkauth", {
+      const auth = await axios.get("https://pineconnect.onrender.com/api/checkauth", {
         withCredentials: true,
       });
 
       console.log(auth);
 
       const { data } = await axios.post(
-        "http://localhost:3000/payment/createOrder",
+        "https://pineconnect.onrender.com/payment/createOrder",
         { planId },
         { withCredentials: true },
       );
@@ -121,7 +121,7 @@ const Subscription = () => {
             console.log("calling verification", response);
 
             await axios.post(
-              "http://localhost:3000/payment/verifyPayment",
+              "https://pineconnect.onrender.com/payment/verifyPayment",
               {
                 ...response,
                 planId,

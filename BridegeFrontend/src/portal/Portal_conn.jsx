@@ -27,7 +27,7 @@ const [data,dataset] = useState([]);
       try {
         console.log("hello");
 
-        const res = await axios.get("http://localhost:3000/api/getLicense", { withCredentials: true });
+        const res = await axios.get("https://pineconnect.onrender.com/api/getLicense", { withCredentials: true });
         dataset(res.data);
         console.log(res);
       } catch (error) {
@@ -59,9 +59,7 @@ const [data,dataset] = useState([]);
         </div>
 
         <div className="p-2 space-y-2 overflow-hidden">
-          <LicenseRow licenseKey="LIC-8X92-KD92-PL01" initialUser="Sohaib" initialType="Algo" status="Active" />
-          <LicenseRow licenseKey="LIC-2A44-M292-XQ88" initialUser="Sohaib" initialType="Manual" status="Active" />
-          <LicenseRow licenseKey="LIC-9P12-BB02-KL09" initialUser="Sohaib" initialType="Algo" status="Active" />
+
           {
             data.map((e)=>{
               return(          <LicenseRow licenseKey= {e.licenseKey} initialUser={e.licenseName} initialType="Algo" status={e.status} />

@@ -29,7 +29,7 @@ const navigate = useNavigate();
 
     try {
       const res = await axios.post(
-        `https://bridge-etn0.onrender.com/api/newuser`,
+        `https://pineconnect.onrender.com/api/newuser`,
         formData,
         { withCredentials: true }
       );

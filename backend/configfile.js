@@ -16,126 +16,95 @@ const httpservercall = ()=>{
 }
 
 httpservercall();
-
-// tcp code ========================================
-
-
+//tcp
 const net = require("net");
-// http for tradingview signal
-const express = require("express")
-const app = express();
-app.use(express.json());
-
-app.use(cors({
-  origin: "https://bridege-frontend.vercel.app", // frontend
-  credentials: true
-}));
-
-// Store active license connections
-// licenseKey => socket
-const activeLicenses = new Map();
 
 const PORT = 9001;
+const activeLicenses = new Map();
 
+function isLicenseValid(license) {
+  return Boolean(license); // replace with DB check
+}
 
-  const server = net.createServer((socket) => {
-  console.log("📡 New TCP connection from", socket.remoteAddress);
+const server = net.createServer((socket) => {
+  console.log("New TCP connection:", socket.remoteAddress);
 
   let authenticatedLicense = null;
-  let message = " ";
-  // Receive data from DLL
+
   socket.on("data", (buffer) => {
-    try {
-      console.log("start");
+    const message = buffer.toString("utf8").trim();
+    console.log("Received:", message);
 
-      message = buffer.toString("utf8").trim(" ");
-      console.log(typeof (message));
-
-      const data = JSON.parse(message);
-
-      console.log(data);
-
-
-
-
-      // ======================
-      // LICENSE AUTH HANDSHAKE
-      // ======================
-      if (data.type === "AUTH") {
-        const license = data.license;
-
-        // 🔒 Validate license (replace with DB/API check)
-        if (!isLicenseValid(license)) {
-          socket.write(JSON.stringify({ status: "DENIED" }));
-          socket.end();
-          return;
-        }
-
-
-
-        // ❌ License already connected
-        if (activeLicenses.has(license)) {
-          socket.write(
-            JSON.stringify({ status: "DENIED", reason: "LICENSE_IN_USE" })
-          );
-          socket.end();
-          return;
-        }
-
-        //database check
-
-
-
-        // ✅ License accepted
-        authenticatedLicense = license;
-
-        activeLicenses.set(license, socket);
-
-        socket.write(JSON.stringify({ status: "OK" }));
-        console.log(`✅ License connected: ${license}`);
-      }
-
-      // ======================
-      // AFTER AUTH (COMMANDS)
-      // ======================
-      else if (data.type === "PING" && authenticatedLicense) {
-        socket.write(JSON.stringify({ type: "PONG" }));
-      }
-
-      else if (data.type === "ORDER" && authenticatedLicense) {
-        console.log(
-          `📥 Order from ${authenticatedLicense}:`,
-          data.payload
-        );
-      }
-
-    } catch (err) {
-      console.error("❌ Invalid data received");
-      console.error(err);
+    // Browser/Render health check HTTP request ignore
+    if (
+      message.startsWith("GET") ||
+      message.startsWith("POST") ||
+      message.startsWith("HEAD") ||
+      message.startsWith("OPTIONS")
+    ) {
+      console.log("HTTP request on TCP port. Closing...");
+      socket.end();
+      return;
     }
+
+    let data;
+
+    try {
+      data = JSON.parse(message);
+    } catch (err) {
+      console.log("Invalid JSON:", message);
+      socket.write(JSON.stringify({ status: "ERROR", message: "Invalid JSON" }));
+      socket.end();
+      return;
+    }
+
+    if (data.type === "AUTH") {
+      const license = data.license;
+
+      if (!isLicenseValid(license)) {
+        socket.write(JSON.stringify({ status: "DENIED" }));
+        socket.end();
+        return;
+      }
+
+      if (activeLicenses.has(license)) {
+        socket.write(JSON.stringify({ status: "ALREADY_CONNECTED" }));
+        socket.end();
+        return;
+      }
+
+      authenticatedLicense = license;
+      activeLicenses.set(license, socket);
+
+      socket.write(JSON.stringify({ status: "OK", message: "Authenticated" }));
+      console.log("License connected:", license);
+      return;
+    }
+
+    if (!authenticatedLicense) {
+      socket.write(JSON.stringify({ status: "DENIED", message: "Auth required" }));
+      socket.end();
+      return;
+    }
+
+    console.log("Data from license:", authenticatedLicense, data);
   });
 
-
-
-
-  // Handle disconnect
   socket.on("close", () => {
     if (authenticatedLicense) {
       activeLicenses.delete(authenticatedLicense);
-      console.log(`🔌 License disconnected: ${authenticatedLicense}`);
+      console.log("License disconnected:", authenticatedLicense);
     }
   });
 
   socket.on("error", (err) => {
-    console.error("Socket error:", err.message);
+    console.log("Socket error:", err.message);
   });
 });
 
-
-server.listen(PORT, () => {
-  console.log(`🚀 TCP Server running on port ${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`TCP server running on port ${PORT}`);
 });
-
 // --------------------
 // Dummy License Check
 // --------------------

@@ -7,7 +7,8 @@ const { check } = require("../auth/token_create.js");
 const paymentroute = express.Router();
 const userSchema = require("../schema/sign_schema.js");
 const cookieParser = require("cookie-parser");
-const createOrUpdateLicenses = require("../subscription/generateLicenseKey.js")
+const createOrUpdateLicenses = require("../subscription/generateLicenseKey.js");
+const { log } = require("console");
 paymentroute.use(cookieParser());
 
 // GET all active subscription plans
@@ -26,12 +27,27 @@ paymentroute.get("/subscription", async (req, res) => {
 
 paymentroute.post("/createOrder", async (req, res) => {
   try {
-    const { planId } = req.body;
-    const token = req.cookies.token;
 
+    console.log("jndjnj");
+
+
+    const { planId } = req.body;
+    const {token} = req.cookies;
+    console.log("this is token " + token);
+    
+    
+    
+console.log("KEY BEING SENT:", process.env.RAZORPAY_KEY_ID);
    
     const decoded = check(token); 
-    // console.log("Token decoded:", decoded);
+
+    if(!decoded){
+      console.log("auth fail");
+     
+      return res.status(401).json({ message: "Authentication failed. Token is missing or invalid." });
+      
+    }
+   
 
     // ✅ FIX 2: Ensure you are searching by email correctly
     // If 'decoded' contains an email, use { email: decoded.email }
@@ -51,11 +67,11 @@ paymentroute.post("/createOrder", async (req, res) => {
     const options = {
       amount: amount,
       currency: plan.currency || "INR",
-      receipt: `receipt_${plan._id}_${Date.now()}`,
+      receipt: `receipt_${Date.now()}`,
     };
-
+console.log("plan issue");
     const order = await razorpay.orders.create(options);
-
+console.log("plan issue");
     // ✅ FIX 3: Satisfy your "User is required" Schema error
     const newPaymentEntry = new PaymentEntry({
       user: result._id,        // Make sure the field name matches your Schema ('user' vs 'userId')
@@ -71,6 +87,9 @@ paymentroute.post("/createOrder", async (req, res) => {
     });
 
     const savedEntry = await newPaymentEntry.save();
+
+    console.log("done ==== ");
+    
 
     // Now res.json will work because we didn't overwrite 'res'!
     return res.json({

@@ -20,6 +20,7 @@ import {
 
 import LicenseRow from "./LicenseRow"
 import axios from 'axios';
+import { API_BASE_URL } from '../api';
 const Portal_conn = () => {
 const [data,dataset] = useState([]);
   useEffect(() => {
@@ -27,7 +28,7 @@ const [data,dataset] = useState([]);
       try {
         console.log("hello");
 
-        const res = await axios.get("https://pineconnect.onrender.com/api/getLicense", { withCredentials: true });
+        const res = await axios.get(`${API_BASE_URL}/api/getLicense`, { withCredentials: true });
         dataset(res.data);
         console.log(res);
       } catch (error) {

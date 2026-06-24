@@ -14,7 +14,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const cookieOptions = {
-  httpOnly: true,
+  httpOnly: false,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   path: "/",

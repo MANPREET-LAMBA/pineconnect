@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { API_BASE_URL } from "../api";
 
 export default function Login() {
 
@@ -13,14 +14,14 @@ const navigate = useNavigate();
   const response = async ()=>{
    try {
      const res =  await axios.get(
-      "https://pineconnect.onrender.com/api/checkauth",
+      `${API_BASE_URL}/api/checkauth`,
       { withCredentials: true } ,
       {
         headers: {
           "Content-Type": "application/json"
         }
       }
-    );
+     );
 
     // console.log(res);
     
@@ -43,7 +44,7 @@ const handleSubmit = async (e) => {
 
   try {
     const response = await axios.post(
-      "https://pineconnect.onrender.com/api/login",
+      `${API_BASE_URL}/api/login`,
       { email, password },
       { withCredentials: true } ,
       {

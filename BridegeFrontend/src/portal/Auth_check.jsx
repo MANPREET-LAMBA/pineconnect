@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
+import { API_BASE_URL } from "../api";
 
 const Auth_check = ({ children }) => {
 
@@ -11,7 +12,7 @@ const Auth_check = ({ children }) => {
     const checkAuth = async () => {
       try {
         await axios.get(
-          "https://pineconnect.onrender.com/api/checkauth",
+          `${API_BASE_URL}/api/checkauth`,
           { withCredentials: true }
         );
 

@@ -20,22 +20,24 @@ const check = (tokenx) => {
   if (!token) {
     console.log("token not found");
 
-    return res.status(401).json({ success: false });
+    return false;
   }
 
   try {
     // verify token
-    // console.log("in try");
+    console.log("in try");
 
     const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY);
-    console.log(decoded);
+    console.log("decode " + decoded);
     return decoded
 
     // res.json({ success: true, user: decoded });
   } catch (err) {
+    console.log("in auth ");
+    
     console.log(err);
 
-    res.status(401).json({ success: false });
+  
   }
 }
 

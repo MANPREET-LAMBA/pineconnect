@@ -20,12 +20,13 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 dotenv.config();
 
 app.use("/api", router)
 app.use("/payment",paymentroute)
 app.use("/api/licenses", licenseRoutes);
-app.use(cookieParser()); // ✅ REQUIRED
+ // ✅ REQUIRED
 
 connect();
 

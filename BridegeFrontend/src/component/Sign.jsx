@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { API_BASE_URL } from "../api";
 
 export default function Sign() {
   const [formData, setFormData] = useState({
@@ -29,7 +30,7 @@ const navigate = useNavigate();
 
     try {
       const res = await axios.post(
-        `https://pineconnect.onrender.com/api/newuser`,
+        `${API_BASE_URL}/api/newuser`,
         formData,
         { withCredentials: true }
       );

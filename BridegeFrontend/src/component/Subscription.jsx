@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { API_BASE_URL } from "../api";
 
 const Subscription = () => {
   // const [plans, setPlans] = useState([]);
@@ -18,17 +19,14 @@ const Subscription = () => {
       features: [
         "2 Trading Accounts",
         "Basic Analytics",
+        "Standard Speed",
         "Email Support",
-        "Real-time Monitoring",
-        "Secure Dashboard",
-        "Strategy Access",
-        "Beginner Friendly",
       ],
     },
     {
-      _id: "698f66c0d2644f37a942a806",
-      name: "Trader Plus",
-      price: "₹59/mo",
+      _id: "67b078979e2f49c065f3a0dc",
+      name: "Standard Pro",
+      price: "₹49/mo",
       currency: "INR",
       billingCycle: "monthly",
       isFree: false,
@@ -37,31 +35,24 @@ const Subscription = () => {
       features: [
         "5 Trading Accounts",
         "Advanced Analytics",
-        "Priority Support",
-        "Real-time Monitoring",
-        "Risk Management",
-        "API Access",
-        "Custom Strategies",
-        "Performance Reports",
+        "Priority Speed",
+        "24/7 Chat Support",
       ],
     },
     {
-      _id: "698f66cbd2644f37a942a809",
-      name: "Scale Master",
-      price: "₹129/mo",
+      _id: "698f66b0d2644f37a942a805",
+      name: "Premium Pro",
+      price: "₹99/mo",
       currency: "INR",
       billingCycle: "monthly",
       isFree: false,
-      accounts: 12,
+      accounts: 10,
       highlight: false,
       features: [
-        "12 Trading Accounts",
-        "Enterprise Analytics",
-        "24/7 Premium Support",
-        "Unlimited Strategies",
-        "Advanced Risk Control",
-        "API + Webhooks",
-        "Team Collaboration",
+        "10 Trading Accounts",
+        "Full Analytics suite",
+        "Ultra-low latency",
+        "Dedicated Manager",
       ],
     },
   ];
@@ -70,7 +61,7 @@ const Subscription = () => {
   // useEffect(() => {
   //   const fetchSubscription = async () => {
   //     const result = await axios.get(
-  //       "https://pineconnect.onrender.com/payment/subscription",
+  //       `${API_BASE_URL}/payment/subscription`,
   //     );
   //     setPlans(result.data);
   //     console.log(result.data);
@@ -91,14 +82,14 @@ const Subscription = () => {
     // }
 
     try {
-      const auth = await axios.get("https://pineconnect.onrender.com/api/checkauth", {
+      const auth = await axios.get(`${API_BASE_URL}/api/checkauth`, {
         withCredentials: true,
       });
 
       console.log(auth);
 
       const { data } = await axios.post(
-        "https://pineconnect.onrender.com/payment/createOrder",
+        `${API_BASE_URL}/payment/createOrder`,
         { planId },
         { withCredentials: true },
       );
@@ -112,7 +103,7 @@ const Subscription = () => {
         handler: async function (response) {
           try {
             await axios.post(
-              "http://localhost:3000/payment/verifyPayment",
+              `${API_BASE_URL}/payment/verifyPayment`,
               {
                 ...response,
                 planId,

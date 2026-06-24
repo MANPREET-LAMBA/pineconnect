@@ -17,6 +17,7 @@ import {
   Cpu
 } from 'lucide-react';
 import Portal_conn from '../portal/Portal_conn';
+import { API_BASE_URL } from '../api';
 
 export default function Portal_layout() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -31,7 +32,7 @@ export default function Portal_layout() {
 const logouthandler = async () => {
   try {
     const response = await axios.post(
-      'https://pineconnect.onrender.com/api/logout',
+      `${API_BASE_URL}/api/logout`,
       {},
       {
         withCredentials: true,

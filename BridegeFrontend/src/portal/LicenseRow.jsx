@@ -6,7 +6,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import {API_BASE} from "../api"
+import {API_BASE} from "../FinalApi"
 
  // adjust if needed
 

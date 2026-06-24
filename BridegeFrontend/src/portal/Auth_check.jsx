@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
-import { API_BASE_URL } from "../Api";
+import { API_BASE_URL } from "../FinalApi";
 
 const Auth_check = ({ children }) => {
 

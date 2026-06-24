@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
-import { API_BASE_URL } from "../api";
+import { API_BASE_URL } from "../Api";
 
 const Subscription = () => {
   // const [plans, setPlans] = useState([]);

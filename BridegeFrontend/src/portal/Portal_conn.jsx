@@ -20,7 +20,7 @@ import {
 
 import LicenseRow from "./LicenseRow"
 import axios from 'axios';
-import { API_BASE_URL } from '../api';
+import { API_BASE_URL } from '../Api';
 const Portal_conn = () => {
 const [data,dataset] = useState([]);
   useEffect(() => {

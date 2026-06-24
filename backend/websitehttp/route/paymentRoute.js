@@ -29,9 +29,9 @@ paymentroute.post("/createOrder", async (req, res) => {
     const { planId } = req.body;
     const token = req.cookies.token;
 
-    // ✅ FIX 1: Rename 'res' to something else like 'decoded'
+   
     const decoded = check(token); 
-    console.log("Token decoded:", decoded);
+    // console.log("Token decoded:", decoded);
 
     // ✅ FIX 2: Ensure you are searching by email correctly
     // If 'decoded' contains an email, use { email: decoded.email }
@@ -51,7 +51,7 @@ paymentroute.post("/createOrder", async (req, res) => {
     const options = {
       amount: amount,
       currency: plan.currency || "INR",
-      receipt: `receipt_${plan._id}`,
+      receipt: `receipt_${plan._id}_${Date.now()}`,
     };
 
     const order = await razorpay.orders.create(options);
@@ -94,7 +94,10 @@ paymentroute.post("/createOrder", async (req, res) => {
 
 paymentroute.post("/verifyPayment", async (req, res) => {
 
-  console.log("in verfy bk")
+ console.log("VERIFY BODY:", req.body);
+console.log("KEY ID:", process.env.RAZORPAY_KEY_ID);
+console.log("SECRET EXISTS:", !!process.env.RAZORPAY_KEY_SECRET);
+  
   try {
     const {
       razorpay_order_id,

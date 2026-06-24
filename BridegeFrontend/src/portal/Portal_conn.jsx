@@ -51,18 +51,18 @@ const [data,dataset] = useState([]);
 
       <div className="bg-[#11151C]/50 border border-slate-800 rounded-3xl p-1 overflow-hidden">
         {/* Header Only for Desktop */}
-        <div className="hidden md:flex px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-800/50">
+        <div className="hidden  md:flex justify-evenly px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-800/50">
           <span className="w-1/4">License Key</span>
           <span className="w-1/4">Owner</span>
           <span className="w-1/6">Status</span>
-          <span className="w-1/6">Operating Mode</span>
+          <span className="w-1/6">Algo On / Off</span>
         </div>
 
         <div className="p-2 space-y-2 overflow-hidden">
 
           {
             data.map((e)=>{
-              return(          <LicenseRow licenseKey= {e.licenseKey} initialUser={e.licenseName} initialType="Algo" status={e.status} />
+              return(          <LicenseRow key={e.licenseKey} licenseKey= {e.licenseKey} initialUser={e.licenseName} initialType="Algo" status={e.status} />
 )
             })
           }

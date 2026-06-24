@@ -1,18 +1,19 @@
-const appx =  require("./websitehttp/server")
+const appx = require("./websitehttp/server")
 const http = require("http")
 const cors = require('cors')
+const licenseModel = require("./websitehttp/schema/licenseSchema")
 
-const httpservercall = ()=>{
+const httpservercall = () => {
 
-    
-    const server = http.createServer(appx);
 
-    server.listen(3000,()=>{
+  const server = http.createServer(appx);
+
+  server.listen(3000, () => {
     console.log("server live http 3000");
-    
 
-    
-})
+
+
+  })
 }
 
 httpservercall();
@@ -22,16 +23,56 @@ const net = require("net");
 const PORT = 9001;
 const activeLicenses = new Map();
 
-function isLicenseValid(license) {
-  return Boolean(license); // replace with DB check
+async function isLicenseValid(licenseKey) {
+  const license = await licenseModel.findOne({ licenseKey });
+
+  if (!license) {
+    return false;
+  }
+
+  // Expired check
+  if (license.endDate <= new Date()) {
+
+    if (license.status !== "expired") {
+      license.status = "expired";
+      await license.save();
+    }
+
+    return false;
+  }
+
+  // Inactive check
+  if (license.status !== "active") {
+    return false;
+  }
+
+  return true;
 }
 
+async function checkAlgo(licenseKey){
+  try {
+
+    const result = await licenseModel.findOne({licenseKey})
+   
+   
+
+    if(result.mode == "OFF"){
+      return false
+    }
+
+    return true
+    
+    
+  } catch (error) {
+    
+  }
+}
 const server = net.createServer((socket) => {
   console.log("New TCP connection:", socket.remoteAddress);
 
   let authenticatedLicense = null;
 
-  socket.on("data", (buffer) => {
+  socket.on("data", async (buffer) => {
     const message = buffer.toString("utf8").trim();
     console.log("Received:", message);
 
@@ -61,7 +102,9 @@ const server = net.createServer((socket) => {
     if (data.type === "AUTH") {
       const license = data.license;
 
-      if (!isLicenseValid(license)) {
+      const valid = await isLicenseValid(license);
+
+      if (!valid) {
         socket.write(JSON.stringify({ status: "DENIED" }));
         socket.end();
         return;
@@ -108,14 +151,35 @@ server.listen(PORT, "0.0.0.0", () => {
 // --------------------
 // Dummy License Check
 // --------------------
-function isLicenseValid(license) {
-  // Replace with DB / API / Redis check
-  return license && license.length >= 5;
-}
 
-appx.post("/tv", (req, res) => {
+
+appx.post("/tv", async (req, res) => {
   const { license, symbol, side, lot, sl, tp } = req.body;
-  console.log(symbol)
+
+
+ try{
+    
+    const valid = await isLicenseValid(license);
+   
+
+    const passSignal = await checkAlgo(license)
+ 
+
+    if (!valid) {
+      return res.status(400).json({ error: "expired licence" });
+    }
+
+    if(!passSignal){
+      return res.status(400).json({ error: "Algo Mode is OFF" });
+    }
+  } catch (error) {
+
+    res.status(400).json.toString({
+      message: "server error in isLicenseValid "
+    })
+  }
+
+  // console.log(symbol)
 
   // 1. Check if MT5 is connected
   const socket = activeLicenses.get(license);

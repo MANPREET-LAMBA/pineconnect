@@ -12,6 +12,8 @@ async function createOrUpdateLicenses(userId, planName, paymentId, orderId) {
   const licenseCount = plan.Accounts;
 
   const duration = 30 * 24 * 60 * 60 * 1000; // 30 days
+    
+  // const duration = 5000;
 
   const existingLicenses = await License.find({ user: userId }).sort({ createdAt: 1 });
 
@@ -28,7 +30,7 @@ async function createOrUpdateLicenses(userId, planName, paymentId, orderId) {
         plan: plan.name,
         licenseKey: generateLicenseKey(),
         licenseName: `${plan.name}-${i + 1}`,
-        mode: "algo",
+        mode: "ON",
         paymentId,
         orderId,
         status: "active",
@@ -87,7 +89,7 @@ async function createOrUpdateLicenses(userId, planName, paymentId, orderId) {
         plan: plan.name,
         licenseKey: generateLicenseKey(),
         licenseName: `${plan.name}-${currentCount + i + 1}`,
-        mode: "algo",
+        mode: "ON",
         paymentId,
         orderId,
         status: "active",

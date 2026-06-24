@@ -31,8 +31,8 @@ const licenseSchema = new mongoose.Schema(
 
     mode: {
       type: String,
-      enum: ["algo", "manual"],
-      default: "algo"
+      enum: ["ON", "OFF"],
+      default: "ON"
     },
 
     paymentId: {

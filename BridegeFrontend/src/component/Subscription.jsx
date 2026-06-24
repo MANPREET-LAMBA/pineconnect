@@ -67,28 +67,28 @@ const Subscription = () => {
   ];
 
 
-  useEffect(() => {
-    const fetchSubscription = async () => {
-      const result = await axios.get(
-        "https://pineconnect.onrender.com/payment/subscription",
-      );
-      setPlans(result.data);
-      console.log(result.data);
-    };
-    fetchSubscription();
-  }, []);
+  // useEffect(() => {
+  //   const fetchSubscription = async () => {
+  //     const result = await axios.get(
+  //       "https://pineconnect.onrender.com/payment/subscription",
+  //     );
+  //     setPlans(result.data);
+  //     console.log(result.data);
+  //   };
+  //   fetchSubscription();
+  // }, []);
 
   const handlePayment = async (planId) => {
-    const hasToken = document.cookie;
-    console.log("this is token" + document.cookie.includes("token"));
-    console.log("token " +hasToken);
+    // const hasToken = document.cookie;
+    // console.log("this is token" + document.cookie.includes("token"));
+    // console.log("token " + hasToken);
 
-    // 🔥 If no cookie → go to login immediately
-    if (!hasToken) {
-      navigate("/login");
-      alert("login first");
-      return;
-    }
+    // // 🔥 If no cookie → go to login immediately
+    // if (!hasToken) {
+    //   navigate("/login");
+    //   alert("login first");
+    //   return;
+    // }
 
     try {
       const auth = await axios.get("https://pineconnect.onrender.com/api/checkauth", {
@@ -108,20 +108,11 @@ const Subscription = () => {
         amount: data.amount,
         currency: data.currency,
         order_id: data.orderId,
-        method: {
-          card: true,
-          netbanking: true,
-          wallet: true,
-          upi: true,
 
-        },
-        checkout_config_id: "config_SLYcPTj7E80P1U",
         handler: async function (response) {
           try {
-            console.log("calling verification", response);
-
             await axios.post(
-              "https://pineconnect.onrender.com/payment/verifyPayment",
+              "http://localhost:3000/payment/verifyPayment",
               {
                 ...response,
                 planId,
@@ -133,9 +124,17 @@ const Subscription = () => {
             alert("Payment Successful");
           } catch (error) {
             console.log("VERIFY ERROR:", error.response?.data || error.message);
+            console.log(error);
+            
             alert("Payment verification failed");
           }
-        }
+        },
+
+        modal: {
+          ondismiss: function () {
+            console.log("Razorpay closed");
+          },
+        },
       };
 
       const rzp = new window.Razorpay(options);

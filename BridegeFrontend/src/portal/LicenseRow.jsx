@@ -6,8 +6,9 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import {API_BASE} from "../api"
 
-const API_BASE = "http://localhost:3000/api/licenses"; // adjust if needed
+ // adjust if needed
 
 // Reusable PATCH helper
 const patchLicense = async (licenseKey, endpoint, body) => {

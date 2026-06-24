@@ -6,13 +6,13 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import {API_BASE} from "../FinalApi"
+import {API_BASE_URL} from "../FinalApi"
 
  // adjust if needed
 
 // Reusable PATCH helper
 const patchLicense = async (licenseKey, endpoint, body) => {
-  const res = await fetch(`${API_BASE}/${encodeURIComponent(licenseKey)}/${endpoint}`, {
+  const res = await fetch(`${API_BASE_URL}/${encodeURIComponent(licenseKey)}/${endpoint}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

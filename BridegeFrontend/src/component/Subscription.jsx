@@ -80,12 +80,12 @@ const Subscription = () => {
     //   alert("login first");
     //   return;
     // }
-
+    alert("check 1")
     try {
       const auth = await axios.get(`${API_BASE_URL}/api/checkauth`, {
         withCredentials: true,
       });
-
+alert("check 2")
       console.log(auth);
 
       const { data } = await axios.post(

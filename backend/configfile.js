@@ -31,22 +31,20 @@ async function isLicenseValid(licenseKey) {
   }
 
   // Expired check
-  if (license.endDate <= new Date()) {
+  if (license.endDate < new Date() || license.status == "expired") {
 
-    if (license.status !== "expired") {
-      license.status = "expired";
-      await license.save();
-    }
+    console.log("false");
+    
 
     return false;
   }
 
   // Inactive check
-  if (license.status !== "active") {
-    return false;
+  if (license.status == "active") {
+    return true;
   }
 
-  return true;
+  
 }
 
 async function checkAlgo(licenseKey){
@@ -157,15 +155,16 @@ appx.post("/tv", async (req, res) => {
   const { license, symbol, side, lot, sl, tp } = req.body;
 
 
- try{
-    
+ 
+    try{
     const valid = await isLicenseValid(license);
+  
    
 
     const passSignal = await checkAlgo(license)
  
 
-    if (!valid) {
+    if (valid == false ) {
       return res.status(400).json({ error: "expired licence" });
     }
 

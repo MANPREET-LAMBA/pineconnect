@@ -6,7 +6,7 @@ router.use(cookieParser()); // ✅ REQUIRED
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const sendmail = require("../emial/emailConfig");
-const {token_create} = require("./token_create");
+const { token_create } = require("./token_create");
 const lic = require("../schema/licenseSchema")
 const saltRounds = 10;
 
@@ -131,7 +131,7 @@ router.post("/login", async (req, res) => {
 // router.get("/getLicense",(req,res)=>{
 // try {
 //   console.log("heli");
-  
+
 //   const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hbnByZWV0c2luZ2gyMDAzMUBnbWFpbC5jb20iLCJwYXNzd29yZCI6Ik1hbnByZWV0MSMiLCJpYXQiOjE3NzMwNzMwOTd9.MvIHyl2D0mWzV6up4HhT3UXI_5-buoPXnaFxc-m8Q6Y";
 //   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 //   console.log("heli2");
@@ -142,40 +142,65 @@ router.post("/login", async (req, res) => {
 
 
 // } catch (error) {
-  
+
 // }
 // })
 
-router.get("/getLicense", async (req,res)=>{
- try {
-
-  console.log("heli");
-
-  const token = req.cookies.token;
-  console.log(token);
-  
-
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
-  console.log("heli2");
-
-  console.log(decoded.email);
-const user = await userModel.findOne({email: decoded.email})
+router.get("/getLicense", async (req, res) => {
+  try {
 
 
 
-  const license = await lic.find({ user: user._id });
-  console.log(license);
-  
+    const token = req.cookies.token;
 
-  res.status(200).json(license);
 
- } catch (error) {
 
-  console.log(error);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-  res.status(500).json({ message: "Server error" });
 
- }
+    const user = await userModel.findOne({ email: decoded.email })
+
+
+
+    const license = await lic.find({ user: user._id });
+
+    // const marker = async() => {
+    //   const updated_license = license.map((e) => {
+    //        if (lics.endDate < Date.now()) {
+    //         await lic.updateMany({licenseKey:lic.licenseKey},{status : "expired"})
+    //     }
+    //   })
+
+
+    // }
+
+    const updated_license = [];
+
+    for (const lic of license) {
+      if (lic.endDate >  Date.now()) {
+        updated_license.push(lic);
+      } else {
+        await lic.updateOne(
+          { licenseKey: lic.licenseKey },
+          { $set: { status: "expired" } }
+        );
+
+        lic.status = "expired";
+        updated_license.push(lic);
+      }
+    }
+
+    console.log(license);
+
+
+    res.status(200).json(updated_license);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({ message: "Server error" });
+
+  }
 });
 module.exports = router;

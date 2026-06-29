@@ -10,7 +10,7 @@ const Subscription = () => {
     {
       _id: "698f66b0d2644f37a942a803",
       name: "Starter Pro",
-      price: "₹29/mo",
+      price: "₹2900/mo",
       currency: "INR",
       billingCycle: "monthly",
       isFree: false,
@@ -26,7 +26,7 @@ const Subscription = () => {
     {
       _id: "67b078979e2f49c065f3a0dc",
       name: "Standard Pro",
-      price: "₹49/mo",
+      price: "₹4900/mo",
       currency: "INR",
       billingCycle: "monthly",
       isFree: false,
@@ -42,7 +42,7 @@ const Subscription = () => {
     {
       _id: "698f66b0d2644f37a942a805",
       name: "Premium Pro",
-      price: "₹99/mo",
+      price: "₹9900/mo",
       currency: "INR",
       billingCycle: "monthly",
       isFree: false,

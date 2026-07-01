@@ -3,6 +3,57 @@ const http = require("http")
 const cors = require('cors')
 const licenseModel = require("./websitehttp/schema/licenseSchema")
 
+
+appx.post("/tv", async (req, res) => {
+  const { license, symbol, side, lot, sl, tp } = req.body;
+
+
+ 
+    try{
+    const valid = await isLicenseValid(license);
+  
+   
+
+    const passSignal = await checkAlgo(license)
+ 
+
+    if (valid == false ) {
+      return res.status(400).json({ error: "expired licence" });
+    }
+
+    if(!passSignal){
+      return res.status(400).json({ error: "Algo Mode is OFF" });
+    }
+  } catch (error) {
+
+    res.status(400).json.toString({
+      message: "server error in isLicenseValid "
+    })
+  }
+
+  // console.log(symbol)
+
+  // 1. Check if MT5 is connected
+  const socket = activeLicenses.get(license);
+  if (!socket) {
+    return res.status(400).json({ error: "MT5 not connected" });
+  }
+
+  // 2. Forward signal to MT5 via TCP
+  socket.write(JSON.stringify({
+    type: "ORDER",
+    payload: { license, symbol, side, lot, sl, tp }
+  }) + "\n");
+
+  console.log(JSON.stringify({
+    type: "ORDER",
+    payload: { symbol, side, lot, sl, tp }
+  }))
+
+  res.json({ status: "SENT_TO_MT5" });
+});
+
+
 const httpservercall = () => {
 
 
@@ -154,54 +205,7 @@ server.listen(PORT, "0.0.0.0", () => {
 // --------------------
 
 
-appx.post("/tv", async (req, res) => {
-  const { license, symbol, side, lot, sl, tp } = req.body;
 
-
- 
-    try{
-    const valid = await isLicenseValid(license);
-  
-   
-
-    const passSignal = await checkAlgo(license)
- 
-
-    if (valid == false ) {
-      return res.status(400).json({ error: "expired licence" });
-    }
-
-    if(!passSignal){
-      return res.status(400).json({ error: "Algo Mode is OFF" });
-    }
-  } catch (error) {
-
-    res.status(400).json.toString({
-      message: "server error in isLicenseValid "
-    })
-  }
-
-  // console.log(symbol)
-
-  // 1. Check if MT5 is connected
-  const socket = activeLicenses.get(license);
-  if (!socket) {
-    return res.status(400).json({ error: "MT5 not connected" });
-  }
-
-  // 2. Forward signal to MT5 via TCP
-  socket.write(JSON.stringify({
-    type: "ORDER",
-    payload: { license, symbol, side, lot, sl, tp }
-  }) + "\n");
-
-  console.log(JSON.stringify({
-    type: "ORDER",
-    payload: { symbol, side, lot, sl, tp }
-  }))
-
-  res.json({ status: "SENT_TO_MT5" });
-});
 
 // app.get("/", (req, res) => {
 //   res.send("HTTP SERVER OK");

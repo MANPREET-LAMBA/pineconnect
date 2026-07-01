@@ -25,8 +25,10 @@ const activeLicenses = new Map();
 
 async function isLicenseValid(licenseKey) {
   const license = await licenseModel.findOne({ licenseKey });
+  console.log("License found:", license);
 
   if (!license) {
+    console.log("false in 1 if");
     return false;
   }
 
@@ -101,6 +103,7 @@ const server = net.createServer((socket) => {
       const license = data.license;
 
       const valid = await isLicenseValid(license);
+      console.log("License validation result for", license, ":", valid);
 
       if (!valid) {
         socket.write(JSON.stringify({ status: "DENIED" }));

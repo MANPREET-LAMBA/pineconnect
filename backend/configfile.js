@@ -3,6 +3,9 @@ const http = require("http")
 const cors = require('cors')
 const licenseModel = require("./websitehttp/schema/licenseSchema")
 
+appx.use(express.json());
+appx.use(express.urlencoded({ extended: true }));
+
 
 appx.post("/tv", async (req, res) => {
   const { license, symbol, side, lot, sl, tp } = req.body;

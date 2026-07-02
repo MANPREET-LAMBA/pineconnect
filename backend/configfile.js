@@ -145,7 +145,7 @@ async function handleTCPMessage(socket, message, state) {
     socket.end();
     return;
   }
-
+console.log("TCP message received: check point ", data);
   if (data.type === "AUTH") {
     const license = data.license;
     const valid = await isLicenseValid(license);

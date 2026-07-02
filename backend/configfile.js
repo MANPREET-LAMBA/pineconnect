@@ -146,6 +146,13 @@ async function handleTCPMessage(socket, message, state) {
     return;
   }
 console.log("TCP message received: check point ", data);
+
+  if (data.type === "PING") {
+    socket.write(JSON.stringify({ status: "PONG" }) + "\n");
+    return;
+  }
+
+  
   if (data.type === "AUTH") {
     const license = data.license;
     const valid = await isLicenseValid(license);

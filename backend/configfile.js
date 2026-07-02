@@ -64,48 +64,62 @@ async function checkAlgo(licenseKey) {
 appx.post("/tv", async (req, res) => {
   const { license, symbol, side, lot, sl, tp } = req.body;
 
+  if (!license || !symbol || !side || !lot) {
+    return res.status(400).json({
+      error: "Missing required fields",
+      receivedBody: req.body
+    });
+  }
+
   try {
     const valid = await isLicenseValid(license);
-    const passSignal = await checkAlgo(license);
-
     if (!valid) {
-      return res.status(400).json({ error: "expired or invalid licence" });
+      return res.status(400).json({ error: "Expired or invalid license" });
     }
 
+    const passSignal = await checkAlgo(license);
     if (!passSignal) {
       return res.status(400).json({ error: "Algo Mode is OFF" });
     }
+
+    const socket = activeLicenses.get(license);
+
+    if (!socket || socket.destroyed || !socket.writable) {
+      activeLicenses.delete(license);
+      return res.status(400).json({ error: "MT5 not connected" });
+    }
+
+    const message = JSON.stringify({
+      type: "ORDER",
+      payload: {
+        license,
+        symbol,
+        side,
+        lot: Number(lot),
+        sl: Number(sl || 0),
+        tp: Number(tp || 0)
+      }
+    }) + "\n";
+
+    socket.write(message, (err) => {
+      if (err) {
+        console.log("FAILED_TO_SEND_MT5");
+        activeLicenses.delete(license);
+        return res.status(500).json({ error: "Failed to send data to MT5" });
+      }
+
+      console.log("DATA_SENT_TO_MT5_SUCCESSFULLY");
+
+      return res.json({
+        status: "SENT_TO_MT5"
+      });
+    });
+
   } catch (error) {
-    console.error("HTTP Route Error:", error);
-    return res.status(500).json({ error: "Server error in license validation" });
+    console.error("TV_ROUTE_ERROR:", error);
+    return res.status(500).json({ error: "Server error" });
   }
-
-  // 1. Check if MT5 is connected
-  const socket = activeLicenses.get(license);
-  if (!socket) {
-    return res.status(400).json({ error: "MT5 not connected" });
-  }
-
-  // 2. Forward signal to MT5 via TCP (with newline delimiter)
-  socket.write(JSON.stringify({
-    type: "ORDER",
-    payload: { license, symbol, side, lot, sl, tp }
-  }) + "\n");
-
-  console.log("Signal dispatched:", JSON.stringify({
-    type: "ORDER",
-    payload: { symbol, side, lot, sl, tp }
-  }));
-
-  return res.json({ status: "SENT_TO_MT5" });
-});
-
-const httpservercall = () => {
-  const server = http.createServer(appx);
-  server.listen(3000, () => {
-    console.log("HTTP server live on port 3000");
-  });
-};
+});;
 
 httpservercall();
 

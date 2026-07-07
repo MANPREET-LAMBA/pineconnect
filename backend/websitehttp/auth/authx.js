@@ -42,17 +42,22 @@ router.post("/newuser", async (req, res) => {
   // ✅ SEND RESPONSE
   res.status(201).json({
     message: "User created successfully",
-    token : token
+    token: token
   });
 });
 
 router.get("/checkauth", (req, res) => {
   console.log("in auth check ");
-  
+
   console.log(req.cookies);
   const token = req.cookies.token || req.headers.authorization;
-  console.log("by header "+req.header.authorization);
-  
+  if (!authHeader) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  console.log("by header " + req.header.authorization);
+
 
   console.log(token);
   console.log("in check auth");
@@ -126,7 +131,7 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
-      token : token
+      token: token
     });
   } catch (error) {
     console.log(error);
@@ -184,7 +189,7 @@ router.get("/getLicense", async (req, res) => {
     const updated_license = [];
 
     for (const lic of license) {
-      if (lic.endDate >  Date.now()) {
+      if (lic.endDate > Date.now()) {
         updated_license.push(lic);
       } else {
         await lic.updateOne(

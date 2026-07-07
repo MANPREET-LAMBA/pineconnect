@@ -9,60 +9,68 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-const navigate = useNavigate();
 
-  useEffect(()=>{
-  const response = async ()=>{
-   try {
-     const res =  await axios.get(
-      `${API_BASE_URL}/api/checkauth`,
-      { withCredentials: true } ,
-      {
-        headers: {
-          "Content-Type": "application/json"
-        }
+
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const response = async () => {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await axios.get(
+          `${API_BASE_URL}/api/checkauth`,
+          { withCredentials: true },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        // console.log(res);
+
+      } catch (error) {
+
+        alert("enter valid email and password")
       }
-     );
-
-    // console.log(res);
-    
-   } catch (error) {
-    
-    alert("enter valid email and password")
-   }
-   
-    
-  }
- response()
 
 
-  
-},[])
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    }
+    response()
 
 
-  try {
-   const response = await axios.post(
-  `${API_BASE_URL}/api/login`,
-  { email, password },
-  {
-    withCredentials: true,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }
-);
 
-    navigate("/")
+  }, [])
 
-    console.log(response.data);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-  }
-};
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/login`,
+        { email, password },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+
+          },
+        }
+      );
+
+      localStorage.setItem("token", response.data.token);
+
+      navigate("/")
+
+      console.log(response.data);
+
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center  relative overflow-hidden">
@@ -113,7 +121,7 @@ const handleSubmit = async (e) => {
           </button>
         </form>
         <p className="text-sm text-gray-400 text-center mt-6">
-        
+
           <a href="/forget" className="text-purple-400 hover:underline">
             Forget Password
           </a>

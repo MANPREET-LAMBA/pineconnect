@@ -47,7 +47,8 @@ router.post("/newuser", async (req, res) => {
 
 router.get("/checkauth", (req, res) => {
   console.log(req.cookies);
-  const token = req.cookies.token;
+  const token = req.cookies.token || req.headers.authorization;
+
   console.log(token);
   console.log("in check auth");
 
@@ -120,6 +121,7 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
+      data : token
     });
   } catch (error) {
     console.log(error);

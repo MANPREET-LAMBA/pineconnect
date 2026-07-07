@@ -42,6 +42,7 @@ router.post("/newuser", async (req, res) => {
   // ✅ SEND RESPONSE
   res.status(201).json({
     message: "User created successfully",
+    token : token
   });
 });
 
@@ -121,7 +122,7 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
-      data : token
+      token : token
     });
   } catch (error) {
     console.log(error);

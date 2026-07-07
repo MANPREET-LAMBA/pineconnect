@@ -39,6 +39,8 @@ const navigate = useNavigate();
 
       console.log("done");
 
+      localStorage.setItem("token", res.data.token);
+
       setMessage("✅ Account created successfully");
       navigate("/portal")
     } catch (error) {

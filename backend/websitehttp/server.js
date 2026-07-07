@@ -8,6 +8,7 @@ const licenseRoutes = require("./route/portal");
 const cors = require('cors')
 const cookieParser = require("cookie-parser");
 const paymentroute = require('./route/paymentRoute');
+const forget = require("./auth/forget")
 
 
 
@@ -25,7 +26,8 @@ dotenv.config();
 
 app.use("/api", router)
 app.use("/payment",paymentroute)
-app.use("/api/licenses", licenseRoutes);
+app.use("/api/licenses", licenseRoutes)
+app.use("/apiv1",forget)
  // ✅ REQUIRED
 
 connect();

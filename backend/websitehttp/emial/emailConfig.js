@@ -11,14 +11,13 @@ const transporter = nodemailer.createTransport({
 }); 
 
 // Send an email using async/await
-const sendmail = async ()=>{
+const sendmail = async (otp)=>{
     
   const info = await transporter.sendMail({
     
     to: "simmu242003@gmail.com",
     subject: "Hello ✔",
-    text: "Hello world?", // Plain-text version of the message
-    html: "<b>Hello world?</b>", // HTML version of the message
+    text: otp, // Plain-text version of the message
     
 })
 console.log("Message sent:", info.messageId);

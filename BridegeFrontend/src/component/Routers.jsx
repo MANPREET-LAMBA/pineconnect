@@ -8,6 +8,8 @@ import Portal_layout from "../portal/Portal_layout";
 import Auth_check from "../portal/Auth_check";
 import Subscription from "./Subscription";
 import Docs from "./Docs";
+import Forget from "./Forget";
+import VerifyOtp from "./Resetpass";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +35,14 @@ const router = createBrowserRouter([
         {
             path : "/document",
             element : <Docs/>
+        },
+        {
+            path:"/forget",
+            element:<Forget/>
+        },
+        {
+            path:"/reset",
+            element:<VerifyOtp/>
         }
         
     ]

@@ -44,16 +44,16 @@ const handleSubmit = async (e) => {
 
 
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/login`,
-      { email, password },
-      { withCredentials: true } ,
-      {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    );
+   const response = await axios.post(
+  `${API_BASE_URL}/api/login`,
+  { email, password },
+  {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }
+);
 
     navigate("/")
 
@@ -112,7 +112,12 @@ const handleSubmit = async (e) => {
             Login
           </button>
         </form>
-
+        <p className="text-sm text-gray-400 text-center mt-6">
+        
+          <a href="/forget" className="text-purple-400 hover:underline">
+            Forget Password
+          </a>
+        </p>
         <p className="text-sm text-gray-400 text-center mt-6">
           Don’t have an account?
           <a href="/sign" className="text-purple-400 hover:underline">

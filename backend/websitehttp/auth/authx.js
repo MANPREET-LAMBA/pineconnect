@@ -51,11 +51,9 @@ router.get("/checkauth", (req, res) => {
 
   console.log(req.cookies);
   const token = req.cookies.token || req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+  
 
-  const token = authHeader.split(" ")[1];
+  token = authHeader.split(" ")[1];
   console.log("by header " + req.header.authorization);
 
 

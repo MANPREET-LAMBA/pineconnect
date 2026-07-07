@@ -47,8 +47,12 @@ router.post("/newuser", async (req, res) => {
 });
 
 router.get("/checkauth", (req, res) => {
+  console.log("in auth check ");
+  
   console.log(req.cookies);
   const token = req.cookies.token || req.headers.authorization;
+  console.log("by header "+req.header.authorization);
+  
 
   console.log(token);
   console.log("in check auth");

@@ -1,14 +1,17 @@
 const appx = require("./websitehttp/server");
 const http = require("http");
-const cors = require('cors');
+const cors = require("cors");
 const licenseModel = require("./websitehttp/schema/licenseSchema");
-const express = require('express');
+const express = require("express");
 const net = require("net");
 
+appx.use(cors());
 appx.use(express.json());
 appx.use(express.urlencoded({ extended: true }));
 
+const HTTP_PORT = process.env.HTTP_PORT || 3000;
 const PORT = 9001;
+
 const activeLicenses = new Map();
 
 // --------------------
@@ -31,12 +34,12 @@ async function isLicenseValid(licenseKey) {
       return false;
     }
 
-    // Inactive check
+    // Active check
     if (license.status === "active") {
       return true;
     }
 
-    // Catch-all fallback for other statuses (e.g., suspended, pending)
+    // Catch-all fallback for other statuses
     return false;
   } catch (error) {
     console.error("Error in isLicenseValid database query:", error);
@@ -47,9 +50,11 @@ async function isLicenseValid(licenseKey) {
 async function checkAlgo(licenseKey) {
   try {
     const result = await licenseModel.findOne({ licenseKey });
+
     if (!result || result.mode === "OFF") {
       return false;
     }
+
     return true;
   } catch (error) {
     console.error("Error in checkAlgo database query:", error);
@@ -67,59 +72,83 @@ appx.post("/tv", async (req, res) => {
   if (!license || !symbol || !side || !lot) {
     return res.status(400).json({
       error: "Missing required fields",
-      receivedBody: req.body
+      receivedBody: req.body,
     });
   }
 
   try {
     const valid = await isLicenseValid(license);
+
     if (!valid) {
-      return res.status(400).json({ error: "Expired or invalid license" });
+      return res.status(400).json({
+        error: "Expired or invalid license",
+      });
     }
 
     const passSignal = await checkAlgo(license);
+
     if (!passSignal) {
-      return res.status(400).json({ error: "Algo Mode is OFF" });
+      return res.status(400).json({
+        error: "Algo Mode is OFF",
+      });
     }
 
     const socket = activeLicenses.get(license);
 
     if (!socket || socket.destroyed || !socket.writable) {
       activeLicenses.delete(license);
-      return res.status(400).json({ error: "MT5 not connected" });
+
+      return res.status(400).json({
+        error: "MT5 not connected",
+      });
     }
 
-    const message = JSON.stringify({
-      type: "ORDER",
-      payload: {
-        license,
-        symbol,
-        side,
-        lot: Number(lot),
-        sl: Number(sl || 0),
-        tp: Number(tp || 0)
-      }
-    }) + "\n";
+    const message =
+      JSON.stringify({
+        type: "ORDER",
+        payload: {
+          license,
+          symbol,
+          side,
+          lot: Number(lot),
+          sl: Number(sl || 0),
+          tp: Number(tp || 0),
+        },
+      }) + "\n";
 
     socket.write(message, (err) => {
       if (err) {
         console.log("FAILED_TO_SEND_MT5");
         activeLicenses.delete(license);
-        return res.status(500).json({ error: "Failed to send data to MT5" });
+
+        return res.status(500).json({
+          error: "Failed to send data to MT5",
+        });
       }
 
       console.log("DATA_SENT_TO_MT5_SUCCESSFULLY");
 
       return res.json({
-        status: "SENT_TO_MT5"
+        status: "SENT_TO_MT5",
       });
     });
-
   } catch (error) {
     console.error("TV_ROUTE_ERROR:", error);
-    return res.status(500).json({ error: "Server error" });
+
+    return res.status(500).json({
+      error: "Server error",
+    });
   }
-});;
+});
+
+// Keep your same function name
+function httpservercall() {
+  const httpServer = http.createServer(appx);
+
+  httpServer.listen(HTTP_PORT, "0.0.0.0", () => {
+    console.log(`HTTP server running on port ${HTTP_PORT}`);
+  });
+}
 
 httpservercall();
 
@@ -127,7 +156,6 @@ httpservercall();
 // TCP Server Setup
 // --------------------
 
-// Business logic isolated to handle atomic TCP string extractions safely
 async function handleTCPMessage(socket, message, state) {
   // Browser/Render health check HTTP request safety filter
   if (/^(GET|POST|HEAD|OPTIONS)/.test(message)) {
@@ -137,56 +165,96 @@ async function handleTCPMessage(socket, message, state) {
   }
 
   let data;
+
   try {
     data = JSON.parse(message);
   } catch (err) {
     console.log("Invalid JSON payload intercepted:", message);
-    socket.write(JSON.stringify({ status: "ERROR", message: "Invalid JSON Structure" }) + "\n");
+
+    socket.write(
+      JSON.stringify({
+        status: "ERROR",
+        message: "Invalid JSON Structure",
+      }) + "\n"
+    );
+
     socket.end();
     return;
   }
-console.log("TCP message received: check point ", data);
+
+  console.log("TCP message received: check point ", data);
 
   if (data.type === "PING") {
-    socket.write(JSON.stringify({ status: "PONG" }) + "\n");
+    socket.write(
+      JSON.stringify({
+        status: "PONG",
+      }) + "\n"
+    );
+
     return;
   }
-
 
   if (data.type === "AUTH") {
     const license = data.license;
     const valid = await isLicenseValid(license);
+
     console.log("License validation result for", license, ":", valid);
 
     if (!valid) {
-      socket.write(JSON.stringify({ status: "DENIED" }) + "\n");
+      socket.write(
+        JSON.stringify({
+          status: "DENIED",
+        }) + "\n"
+      );
+
       socket.end();
       return;
     }
 
-  // FIX: Overwrite the stale old connection if it exists
+    // FIX: Overwrite the stale old connection if it exists
     if (activeLicenses.has(license)) {
       console.log(`Stale session detected for license: ${license}. Evicting old socket.`);
+
       const oldSocket = activeLicenses.get(license);
+
       try {
-        oldSocket.write(JSON.stringify({ status: "DENIED", message: "New session established elsewhere" }) + "\n");
-        oldSocket.destroy(); // Force fully close the old TCP link cleanly
+        oldSocket.write(
+          JSON.stringify({
+            status: "DENIED",
+            message: "New session established elsewhere",
+          }) + "\n"
+        );
+
+        oldSocket.destroy();
       } catch (e) {
         console.log("Error destroying old socket:", e.message);
       }
+
       activeLicenses.delete(license);
     }
 
     state.authenticatedLicense = license;
     activeLicenses.set(license, socket);
 
-    socket.write(JSON.stringify({ status: "OK", message: "Authenticated" }) + "\n");
+    socket.write(
+      JSON.stringify({
+        status: "OK",
+        message: "Authenticated",
+      }) + "\n"
+    );
+
     console.log("License successfully linked/connected:", license);
     return;
   }
 
   if (!state.authenticatedLicense) {
-    socket.write(JSON.stringify({ status: "DENIED", message: "Authentication required" }) + "\n");
+    socket.write(
+      JSON.stringify({
+        status: "DENIED",
+        message: "Authentication required",
+      }) + "\n"
+    );
+
     socket.end();
     return;
   }
@@ -197,19 +265,17 @@ console.log("TCP message received: check point ", data);
 const server = net.createServer((socket) => {
   console.log("New TCP connection pipeline registered:", socket.remoteAddress);
 
-  // Connection tracking reference state
   const connectionState = {
-    authenticatedLicense: null
+    authenticatedLicense: null,
   };
 
   let bufferData = "";
 
   socket.on("data", async (buffer) => {
-    // Append chunks into a string buffer
     bufferData += buffer.toString("utf8");
 
-    // Read streams by evaluating explicit newline boundary splits (\n)
     let boundary = bufferData.indexOf("\n");
+
     while (boundary !== -1) {
       const singleMessage = bufferData.substring(0, boundary).trim();
       bufferData = bufferData.substring(boundary + 1);
@@ -217,6 +283,7 @@ const server = net.createServer((socket) => {
       if (singleMessage.length > 0) {
         await handleTCPMessage(socket, singleMessage, connectionState);
       }
+
       boundary = bufferData.indexOf("\n");
     }
   });
@@ -224,7 +291,11 @@ const server = net.createServer((socket) => {
   socket.on("close", () => {
     if (connectionState.authenticatedLicense) {
       activeLicenses.delete(connectionState.authenticatedLicense);
-      console.log("License dropped/disconnected from pool:", connectionState.authenticatedLicense);
+
+      console.log(
+        "License dropped/disconnected from pool:",
+        connectionState.authenticatedLicense
+      );
     }
   });
 

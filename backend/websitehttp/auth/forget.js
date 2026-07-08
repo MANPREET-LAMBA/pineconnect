@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt")
 const saltRounds = 10;
 
 
-foregtApp.get("/emailVerfication",async(req,res)=>{
+foregtApp.post("/emailVerfication",async(req,res)=>{
     
     
     const {email} = req.body;
@@ -46,6 +46,11 @@ foregtApp.post("/setPass",async(req,res)=>{
 
     optCheck = await rediis.get(`opt${email}`)
     console.log(optCheck);
+
+    if(!email){
+            return res.status(400).json({message:"Email mismatch"})
+
+    }
     
 
     if( otp !== optCheck){

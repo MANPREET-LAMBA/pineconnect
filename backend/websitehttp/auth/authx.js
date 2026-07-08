@@ -50,14 +50,18 @@ router.get("/checkauth", (req, res) => {
   console.log("in auth check ");
 
   console.log(req.cookies);
-  const token = req.cookies.token || req.headers.authorization;
-  
 
-  token = authHeader.split(" ")[1];
-  console.log("by header " + req.header.authorization);
+  let token = req.cookies?.token;
+  const authHeader = req.get("Authorization");
 
+  console.log("by header", authHeader);
 
-  console.log(token);
+  if (!token && authHeader) {
+    token = authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : authHeader;
+  }
+
   console.log("in check auth");
 
   if (!token) {
@@ -67,11 +71,7 @@ router.get("/checkauth", (req, res) => {
   }
 
   try {
-    // verify token
-    // console.log("in try");
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    // console.log(decoded);
 
     res.json({ success: true, user: decoded });
   } catch (err) {

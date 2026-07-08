@@ -26,7 +26,7 @@ export default function VerifyAndResetPassword() {
 
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/reset-password-with-otp`,
+        `${API_BASE_URL}/apiv1/setPass`,
         { email, otp, password },
         { 
           withCredentials: true,

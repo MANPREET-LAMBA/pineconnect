@@ -11,17 +11,15 @@ const Auth_check = ({ children }) => {
 
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
+      console.log(token)
       try {
-        await axios.get(
-          `${API_BASE_URL}/api/checkauth`,
-          { withCredentials: true },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
+        await axios.get(`${API_BASE_URL}/api/checkauth`, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         setAuth(true);
 

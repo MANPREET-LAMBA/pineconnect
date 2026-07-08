@@ -18,9 +18,11 @@ app.use(cors({
    "https://pineconnect-bxwv.vercel.app",
     "http://localhost:5173"
   ],
-  credentials: true
+  credentials: true,
+   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
+
 app.use(cookieParser());
 dotenv.config();
 

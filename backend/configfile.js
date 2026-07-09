@@ -20,26 +20,34 @@ const activeLicenses = new Map();
 
 async function isLicenseValid(licenseKey) {
   try {
+    console.log("Checking license validity for:", licenseKey);
+
     const license = await licenseModel.findOne({ licenseKey });
     console.log("License found:", license);
 
     if (!license) {
-      console.log("License validation failed: Not found");
+      console.log("License validation failed: Not found for license:", licenseKey);
       return false;
     }
 
     // Expired check
     if (license.endDate < new Date() || license.status === "expired") {
-      console.log("License validation failed: Expired");
+      console.log("License validation failed: Expired license:", licenseKey);
       return false;
     }
 
     // Active check
     if (license.status === "active") {
+      console.log("License validation success:", licenseKey);
       return true;
     }
 
     // Catch-all fallback for other statuses
+    console.log("License validation failed: License status is not active:", {
+      licenseKey,
+      status: license.status,
+    });
+
     return false;
   } catch (error) {
     console.error("Error in isLicenseValid database query:", error);
@@ -49,12 +57,20 @@ async function isLicenseValid(licenseKey) {
 
 async function checkAlgo(licenseKey) {
   try {
+    console.log("Checking algo mode for license:", licenseKey);
+
     const result = await licenseModel.findOne({ licenseKey });
 
     if (!result || result.mode === "OFF") {
+      console.log("Algo mode check failed. Algo is OFF or license not found:", {
+        licenseKey,
+        mode: result?.mode,
+      });
+
       return false;
     }
 
+    console.log("Algo mode is ON for license:", licenseKey);
     return true;
   } catch (error) {
     console.error("Error in checkAlgo database query:", error);
@@ -67,9 +83,27 @@ async function checkAlgo(licenseKey) {
 // --------------------
 
 appx.post("/tv", async (req, res) => {
+  console.log("====================================");
+  console.log("NEW ORDER SIGNAL RECEIVED ON /tv");
+  console.log("Raw webhook body:", req.body);
+  console.log("====================================");
+
   const { license, symbol, side, lot, sl, tp } = req.body;
 
+  console.log("Parsed order signal:", {
+    license,
+    symbol,
+    side,
+    lot,
+    sl,
+    tp,
+  });
+
   if (!license || !symbol || !side || !lot) {
+    console.log("ORDER NOT SENT TO MT5");
+    console.log("Reason: Missing required fields");
+    console.log("Received body:", req.body);
+
     return res.status(400).json({
       error: "Missing required fields",
       receivedBody: req.body,
@@ -77,31 +111,55 @@ appx.post("/tv", async (req, res) => {
   }
 
   try {
+    console.log("Step 1: Validating license before sending order to MT5:", license);
+
     const valid = await isLicenseValid(license);
 
     if (!valid) {
+      console.log("ORDER NOT SENT TO MT5");
+      console.log("Reason: License is expired or invalid");
+      console.log("License:", license);
+
       return res.status(400).json({
         error: "Expired or invalid license",
       });
     }
 
+    console.log("Step 2: Checking algo mode for license:", license);
+
     const passSignal = await checkAlgo(license);
 
     if (!passSignal) {
+      console.log("ORDER NOT SENT TO MT5");
+      console.log("Reason: Algo mode is OFF");
+      console.log("License:", license);
+
       return res.status(400).json({
         error: "Algo Mode is OFF",
       });
     }
 
+    console.log("Step 3: Checking active MT5 TCP connection for license:", license);
+    console.log("Currently active MT5 licenses:", Array.from(activeLicenses.keys()));
+
     const socket = activeLicenses.get(license);
 
     if (!socket || socket.destroyed || !socket.writable) {
+      console.log("ORDER NOT SENT TO MT5");
+      console.log("Reason: MT5 socket not connected or socket is dead");
+      console.log("License:", license);
+      console.log("Socket exists:", !!socket);
+      console.log("Socket destroyed:", socket?.destroyed);
+      console.log("Socket writable:", socket?.writable);
+
       activeLicenses.delete(license);
 
       return res.status(400).json({
         error: "MT5 not connected",
       });
     }
+
+    console.log("Step 4: MT5 socket found and writable for license:", license);
 
     const message =
       JSON.stringify({
@@ -116,9 +174,16 @@ appx.post("/tv", async (req, res) => {
         },
       }) + "\n";
 
+    console.log("Step 5: Sending this order message to MT5:", message);
+
     socket.write(message, (err) => {
       if (err) {
         console.log("FAILED_TO_SEND_MT5");
+        console.log("ORDER NOT SENT TO MT5");
+        console.log("Reason: socket.write failed");
+        console.log("Error:", err.message);
+        console.log("License:", license);
+
         activeLicenses.delete(license);
 
         return res.status(500).json({
@@ -127,6 +192,10 @@ appx.post("/tv", async (req, res) => {
       }
 
       console.log("DATA_SENT_TO_MT5_SUCCESSFULLY");
+      console.log("Order successfully sent to MT5 for license:", license);
+      console.log("Symbol:", symbol);
+      console.log("Side:", side);
+      console.log("Lot:", lot);
 
       return res.json({
         status: "SENT_TO_MT5",
@@ -134,6 +203,10 @@ appx.post("/tv", async (req, res) => {
     });
   } catch (error) {
     console.error("TV_ROUTE_ERROR:", error);
+
+    console.log("ORDER NOT SENT TO MT5");
+    console.log("Reason: Server error inside /tv route");
+    console.log("License:", license);
 
     return res.status(500).json({
       error: "Server error",
@@ -185,6 +258,11 @@ async function handleTCPMessage(socket, message, state) {
   console.log("TCP message received: check point ", data);
 
   if (data.type === "PING") {
+    console.log("PING RECEIVED FROM MT5");
+    console.log("PING license:", state.authenticatedLicense || "NOT_AUTHENTICATED_YET");
+    console.log("PING socket IP:", socket.remoteAddress);
+    console.log("Active licenses during PING:", Array.from(activeLicenses.keys()));
+
     socket.write(
       JSON.stringify({
         status: "PONG",
@@ -196,11 +274,20 @@ async function handleTCPMessage(socket, message, state) {
 
   if (data.type === "AUTH") {
     const license = data.license;
+
+    console.log("AUTH REQUEST RECEIVED FROM MT5");
+    console.log("AUTH license:", license);
+    console.log("AUTH socket IP:", socket.remoteAddress);
+
     const valid = await isLicenseValid(license);
 
     console.log("License validation result for", license, ":", valid);
 
     if (!valid) {
+      console.log("AUTH DENIED");
+      console.log("Reason: Invalid or expired license");
+      console.log("License:", license);
+
       socket.write(
         JSON.stringify({
           status: "DENIED",
@@ -236,6 +323,9 @@ async function handleTCPMessage(socket, message, state) {
     state.authenticatedLicense = license;
     activeLicenses.set(license, socket);
 
+    console.log("License added to activeLicenses map:", license);
+    console.log("All active licenses after AUTH:", Array.from(activeLicenses.keys()));
+
     socket.write(
       JSON.stringify({
         status: "OK",
@@ -248,6 +338,10 @@ async function handleTCPMessage(socket, message, state) {
   }
 
   if (!state.authenticatedLicense) {
+    console.log("TCP DATA DENIED");
+    console.log("Reason: Message received before AUTH");
+    console.log("Message:", data);
+
     socket.write(
       JSON.stringify({
         status: "DENIED",
@@ -260,6 +354,12 @@ async function handleTCPMessage(socket, message, state) {
   }
 
   console.log("Data processing from license stream:", state.authenticatedLicense, data);
+
+  if (data.type === "ORDER_RESULT") {
+    console.log("ORDER RESULT RECEIVED FROM MT5");
+    console.log("License:", state.authenticatedLicense);
+    console.log("Order result:", data);
+  }
 }
 
 const server = net.createServer((socket) => {
@@ -296,11 +396,19 @@ const server = net.createServer((socket) => {
         "License dropped/disconnected from pool:",
         connectionState.authenticatedLicense
       );
+
+      console.log("All active licenses after disconnect:", Array.from(activeLicenses.keys()));
+    } else {
+      console.log("Unauthenticated TCP socket closed:", socket.remoteAddress);
     }
   });
 
   socket.on("error", (err) => {
     console.log("Active TCP socket interface runtime error:", err.message);
+
+    if (connectionState.authenticatedLicense) {
+      console.log("Socket error happened for license:", connectionState.authenticatedLicense);
+    }
   });
 });
 
